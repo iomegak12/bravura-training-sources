@@ -1,0 +1,3218 @@
+Bravura - Solutions
+
+Training Materials can be located at the following URL:
+
+https://drive.google.com/drive/folders/1dzMFgUGFYboY0YY7PAlCNDDwy-TLAsFV?usp=sharing
+
+GitHub Resource for Training Source Codes
+https://github.com/iomegak12/bravura-training-sources/
+
+
+https://eloquentjavascript.net/
+
+
+1 Micronaut - Demonstrations
+
+https://micronaut.io/launch
+
+in the terminal window,
+
+    md c:\demonstrations
+    
+    cd c:\demonstratons
+    
+    mn create-app --build=maven --jdk=21 --lang=java --test=spock --features=openapi,swagger-ui com.intsol.customerservice
+    
+    cd customerservice
+    
+    code .
+    
+  
+  
+  Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+  
+  choco install maven
+  
+  choco install micronaut
+  
+  mn --version
+  
+  mvnw compile
+  
+  mvnw package
+  
+  dir target
+  
+  browser -> http://localhost:8080/customerservice
+  
+  open pom.xml
+  
+  add the following under "dependencies" element
+  
+  
+      <dependency>
+      <groupId>io.micronaut.sql</groupId>
+      <artifactId>micronaut-hibernate-jpa</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.micronaut.data</groupId>
+      <artifactId>micronaut-data-tx-hibernate</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.micronaut.data</groupId>
+      <artifactId>micronaut-data-hibernate-jpa</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.micronaut.sql</groupId>
+      <artifactId>micronaut-jdbc-hikari</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.mysql</groupId>
+      <artifactId>mysql-connector-j</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    
+    
+    
+    in the command prompt, mvnw install
+    
+    
+    create a folder named "model" under src\com.intsol
+    
+   create a class named "Customer.java"  
+    
+package com.intsol.model;
+
+import io.micronaut.serde.annotation.Serdeable;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.util.Date;
+
+@Entity
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Serdeable
+public class Customer {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+    private String email;
+    private int age;
+    private String summary;
+    private Date createdDate;
+}
+
+
+create a folder named "repository" under src\com\intsol
+
+create a file named "CustomerRepository.java"
+
+
+package com.intsol.repository;
+
+import com.intsol.model.Customer;
+import io.micronaut.data.annotation.Repository;
+
+@Repository
+public interface CustomerRepository
+        extends io.micronaut.data.repository.CrudRepository<Customer, Long> {
+
+}
+
+
+    create a folder named "service" under src\com\intsol
+    
+    create a file named "CustomerService.java"
+    
+    
+package com.intsol.service;
+
+import java.util.List;
+import com.intsol.model.Customer;
+
+public interface CustomerService {
+    Customer getCustomerById(Long id);
+    List<Customer> getAllCustomers();
+    Customer createCustomer(Customer customer);
+    Customer updateCustomer(Customer customer);
+    void deleteCustomer(Long id);
+}
+
+
+    create a file named "CustomerServiceImpl.java"
+    
+package com.intsol.service;
+
+import java.util.List;
+
+import com.intsol.model.Customer;
+import com.intsol.repository.CustomerRepository;
+
+import jakarta.inject.Singleton;
+
+@Singleton
+public class CustomerServiceImpl
+        implements CustomerService {
+
+    private CustomerRepository customerRepository;
+
+    public CustomerServiceImpl(CustomerRepository customerRepository) {
+        this.customerRepository = customerRepository;
+    }
+
+    @Override
+    public Customer createCustomer(Customer customer) {
+        return customerRepository.save(customer);
+    }
+
+    @Override
+    public Customer getCustomerById(Long id) {
+        return customerRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<Customer> getAllCustomers() {
+        return customerRepository.findAll();
+    }
+
+    @Override
+    public Customer updateCustomer(Customer customer) {
+        Customer existingCustomer = customerRepository.findById(
+                customer.getId()).orElse(null);
+
+        if (existingCustomer != null) {
+            existingCustomer.setName(customer.getName());
+            existingCustomer.setEmail(customer.getEmail());
+            existingCustomer.setAge(customer.getAge());
+            existingCustomer.setCreatedDate(customer.getCreatedDate());
+            existingCustomer.setSummary(customer.getSummary());
+
+            return customerRepository.update(existingCustomer);
+        }
+
+        return null;
+    }
+
+    @Override
+    public void deleteCustomer(Long id) {
+        customerRepository.deleteById(id);
+    }
+}
+
+
+open pom.xml and locate annotationProcessorPaths element
+
+
+replace the annotationProcessorPaths
+
+
+<annotationProcessorPaths combine.self="override">
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+            <path>
+              <groupId>io.micronaut</groupId>
+              <artifactId>micronaut-inject-java</artifactId>
+              <version>${micronaut.core.version}</version>
+            </path>
+            <path>
+              <groupId>io.micronaut.data</groupId>
+              <artifactId>micronaut-data-processor</artifactId>
+              <version>${micronaut.data.version}</version>
+              <exclusions>
+                <exclusion>
+                  <groupId>io.micronaut</groupId>
+                  <artifactId>micronaut-inject</artifactId>
+                </exclusion>
+              </exclusions>
+            </path>
+            <path>
+              <groupId>io.micronaut</groupId>
+              <artifactId>micronaut-graal</artifactId>
+              <version>${micronaut.core.version}</version>
+            </path>
+            <path>
+              <groupId>io.micronaut</groupId>
+              <artifactId>micronaut-http-validation</artifactId>
+              <version>${micronaut.core.version}</version>
+            </path>
+
+            <path>
+              <groupId>io.micronaut.openapi</groupId>
+              <artifactId>micronaut-openapi</artifactId>
+              <version>${micronaut.openapi.version}</version>
+              <exclusions>
+                <exclusion>
+                  <groupId>io.micronaut</groupId>
+                  <artifactId>micronaut-inject</artifactId>
+                </exclusion>
+              </exclusions>
+            </path>
+
+            <path>
+              <groupId>io.micronaut.serde</groupId>
+              <artifactId>micronaut-serde-processor</artifactId>
+              <version>${micronaut.serialization.version}</version>
+              <exclusions>
+                <exclusion>
+                  <groupId>io.micronaut</groupId>
+                  <artifactId>micronaut-inject</artifactId>
+                </exclusion>
+              </exclusions>
+            </path>
+          </annotationProcessorPaths>
+          
+      ALT+SHIFT+F ... to format any kinds of source codes in VS Code
+      
+
+mvnw compile
+
+verify that you're SUCCESSFUL in the build
+
+
+Delete CustomerController.java which is located in src\com.intsol
+
+create a folder named "controller" under src\com\intsol
+
+create a file named "CustomerController.java" under src\com\intsol\controller
+
+
+package com.intsol.controller;
+
+import java.util.List;
+
+import com.intsol.model.Customer;
+import com.intsol.service.CustomerService;
+
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Delete;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.Produces;
+
+@Controller("/api/v1/customers")
+public class CustomerController {
+    private final CustomerService customerService;
+
+    public CustomerController(CustomerService customerService) {
+        this.customerService = customerService;
+    }
+
+    @Get
+    public HttpResponse<List<Customer>> getAllCustomers() {
+        return HttpResponse.ok(customerService.getAllCustomers());
+    }
+
+    @Post
+    @Produces(MediaType.APPLICATION_JSON)
+    public HttpResponse<Customer> createCustomer(Customer customer) {
+        return HttpResponse.created(customerService.createCustomer(customer));
+    }
+
+    @Get("/{id}")
+    public HttpResponse<Customer> getCustomerById(@PathVariable Long id) {
+        return HttpResponse.ok(customerService.getCustomerById(id));
+    }
+
+    @Post("/update")
+    public HttpResponse<Customer> updateCustomer(Customer existingCustomer) {
+        Customer updatedCustomer = customerService.updateCustomer(existingCustomer);
+
+        if (updatedCustomer != null) {
+            return HttpResponse.ok(updatedCustomer);
+        } else {
+            return HttpResponse.notFound();
+        }
+    }
+
+    @Delete("/{id}")
+    public HttpResponse<String> deleteCustomer(@PathVariable Long id) {
+        customerService.deleteCustomer(id);
+
+        return HttpResponse.ok("Customer Record Deleted");
+    }
+}
+
+
+in the terminal (vscode)
+
+doskey c = mvnw compile
+doskey i = mvnw install
+doskey p = mvnw package
+
+updated CustomerController.java
+
+
+package com.intsol.controller;
+
+import java.util.List;
+import com.intsol.model.Customer;
+import com.intsol.service.CustomerService;
+
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Body;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Delete;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.Produces;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Controller("/api/v1/customers")
+public class CustomerController {
+    private final CustomerService customerService;
+
+    public CustomerController(CustomerService customerService) {
+        this.customerService = customerService;
+    }
+
+    @Get
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Get All Customers", description = "Get All Customers from the Database")
+    @ApiResponse(content = @Content(mediaType = "application/json", schema = @Schema(type = "Customer")))
+    @ApiResponse(responseCode = "200", description = "List of Customers Retrieved Successfully")
+    @ApiResponse(responseCode = "404", description = "No Customers Found")
+    @ApiResponse(responseCode = "500", description = "Unable to Process Your Request, Internal Server Error. Please Try Again Later!")
+    @Tag(name = "Get All Customers")
+    public HttpResponse<List<Customer>> getAllCustomers() {
+        return HttpResponse.ok(customerService.getAllCustomers());
+    }
+
+    @Post
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Create New Customer", description = "Creates a New Customer Entry into the Database")
+    @ApiResponse(content = @Content(mediaType = "application/json", schema = @Schema(type = "Customer")))
+    @ApiResponse(responseCode = "200", description = "Customer Record Saved Successfully")
+    @ApiResponse(responseCode = "404", description = "No Customers Found")
+    @ApiResponse(responseCode = "500", description = "Unable to Process Your Request, Internal Server Error. Please Try Again Later!")
+    @Tag(name = "Create New Customer Record")
+    public HttpResponse<Customer> createCustomer(@Body Customer customer) {
+        return HttpResponse.created(customerService.createCustomer(customer));
+    }
+
+    @Get("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Get Customer Details By Id", description = "Retrieves existing Customer Record By Customer Id from the Database")
+    @ApiResponse(content = @Content(mediaType = "application/json", schema = @Schema(type = "Customer")))
+    @ApiResponse(responseCode = "200", description = "Customer Record Retrieved Successfully")
+    @ApiResponse(responseCode = "404", description = "No Customer Record Found")
+    @ApiResponse(responseCode = "500", description = "Unable to Process Your Request, Internal Server Error. Please Try Again Later!")
+    @Tag(name = "Get Customer Details by Id")
+    public HttpResponse<Customer> getCustomerById(@PathVariable Long id) {
+        return HttpResponse.ok(customerService.getCustomerById(id));
+    }
+
+    @Post("/update")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Update Existing Customer Details", description = "Updates Existing Customer Record into the Database")
+    @ApiResponse(content = @Content(mediaType = "application/json", schema = @Schema(type = "Customer")))
+    @ApiResponse(responseCode = "200", description = "Customer Record Updated Successfully")
+    @ApiResponse(responseCode = "404", description = "No Customer Record Found")
+    @ApiResponse(responseCode = "500", description = "Unable to Process Your Request, Internal Server Error. Please Try Again Later!")
+    @Tag(name = "Update Customer Details")
+    public HttpResponse<Customer> updateCustomer(@Body Customer existingCustomer) {
+        Customer updatedCustomer = customerService.updateCustomer(existingCustomer);
+
+        if (updatedCustomer != null) {
+            return HttpResponse.ok(updatedCustomer);
+        } else {
+            return HttpResponse.notFound();
+        }
+    }
+
+    @Delete("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Delete Customer Details By Id", description = "Deletes existing Customer Record By Customer Id from the Database")
+    @ApiResponse(content = @Content(mediaType = "application/json", schema = @Schema(type = "Customer")))
+    @ApiResponse(responseCode = "200", description = "Customer Record Deleted Successfully")
+    @ApiResponse(responseCode = "404", description = "No Customer Record Found")
+    @ApiResponse(responseCode = "500", description = "Unable to Process Your Request, Internal Server Error. Please Try Again Later!")
+    @Tag(name = "Delete Customer Details by Id")
+    public HttpResponse<String> deleteCustomer(@PathVariable Long id) {
+        customerService.deleteCustomer(id);
+
+        return HttpResponse.ok("Customer Record Deleted");
+    }
+}
+
+
+
+Updated Application.java
+
+
+package com.intsol;
+
+import io.micronaut.runtime.Micronaut;
+import io.swagger.v3.oas.annotations.*;
+import io.swagger.v3.oas.annotations.info.*;
+
+@OpenAPIDefinition(
+    info = @Info(
+        title = "IntSol Customer Services", 
+        version = "1.0.0", 
+        description = "Simple POC to Demonstrate how Micronaut Works", 
+        license = @License(name = "MIT", url = "https://license.intsol.in"), 
+        contact = @Contact(url = "https://github.com/iomegak12/", 
+        name = "Ramkumar J Dhamodharan", 
+        email = "jd.ramkumar@gmail.com")))
+public class Application {
+
+    public static void main(String[] args) {
+        Micronaut.run(Application.class, args);
+    }
+}
+
+
+compile, package 
+
+run the application
+
+java -jar .\target\customerservice-0.1.jar
+
+browser -> http://localhost:8080/swagger-ui
+
+browser -> http://localhost:8080/swagger/intsol-customer-services-1.0.0.yml
+
+
+    
+    in the command prompt ->
+    
+        multipass list
+        
+        you should have already created a VM ...
+        
+        if you have not, issue the following command
+        
+            multipass launch --name trainingvm --cpus 2 --memory 8G --disk 16G jammy
+           
+           
+           
+        once it's created,
+        
+        multipass shell trainingvm
+        
+        once you're in the shell,
+        
+        curl -fsSL https://get.docker.com | sudo bash -E -
+        
+        sudo usermod -aG docker ubuntu
+        
+        exit the shell
+        
+        
+        once again, connect to the shell
+        
+        multipass shell trainingvm
+        
+        docker images
+        
+        docker pull mysql
+        
+        docker run -d -t -p 3306:3306 --name dbserver -e MYSQL_ROOT_PASSWORD=Prestige123 -e MYSQL_DATABASE=customers_db mysql
+        
+        docker ps
+        
+        docker logs <first-3-characters-of-container-id>
+        
+        
+        in the terminal, get the ip
+        
+        multipass list
+        
+        copy the IP
+        
+       open application.properties and add the following
+        
+        
+jpa.default.properties.hibernate.hbm2ddl.auto=update
+jpa.default.properties.hibernate.show_sql=true
+datasources.default.driver-class-name=com.mysql.cj.jdbc.Driver
+datasources.default.url=jdbc:mysql://xxxxxx:3306/customers_db
+datasources.default.username=root
+datasources.default.password=Prestige123
+
+# Optional: To enable SQL parameter logging
+jpa.default.properties.hibernate.use_sql_comments=true
+jpa.default.properties.hibernate.highlight_sql=true
+
+        
+    in the vscode terminal,
+    
+        mvnw package
+        
+        java -jar .\target\customerservice-0.1.jar
+        
+        postman
+        
+        GET        http://localhost:8080/api/v1/customers         Headers Content-Type: application/json Accept: application.json     BODY     NONE
+        
+        POST        http://localhost:8080/api/v1/customers         Headers Content-Type: application/json Accept: application.json     BODY     RAW -> JSON
+        
+            {
+    "name": "Northwind",
+    "email": "info@northwind.com",
+    "age": 49,
+    "summary": "This is a simple customer record"
+}
+
+    Beautify -> SEND
+    
+    
+    
+        GET        http://localhost:8080/api/v1/customers/1         Headers Content-Type: application/json Accept: application.json     BODY     NONE
+            
+        POST        http://localhost:8080/api/v1/customers/update         Headers Content-Type: application/json Accept: application.json     BODY   RAW -> JSON
+            
+        
+    
+        
+            
+            {
+    "name": "Southwind",
+    "email": "info@northwind.com",
+    "age": 49,
+    "summary": "This is a simple customer record"
+}
+    
+    
+            
+         GET        http://localhost:8080/api/v1/customers/1         Headers Content-Type: application/json Accept: application.json     BODY     NONE
+    
+    
+    
+            DELETE        http://localhost:8080/api/v1/customers/1         Headers Content-Type: application/json Accept: application.json     BODY     NONE
+
+    
+    
+    https://github.com/iomegak12/micronaut-demo
+    
+    
+    
+    docker-compose.yml
+    
+    
+services:
+  db:
+    image: mysql:latest
+    container_name: db
+    environment:
+      MYSQL_ROOT_PASSWORD: Prestige123
+      MYSQL_DATABASE: customers_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - customerservicenetwork
+
+  customerserviceapp:
+    build: ./
+    image: customerservices:1.0
+    container_name: customerserviceapp
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - DATASOURCES_DEFAULT_URL=jdbc:mysql://db:3306/customers_db
+      - DATASOURCES_DEFAULT_USERNAME=root
+      - DATASOURCES_DEFAULT_PASSWORD=Prestige123
+    networks:
+      - customerservicenetwork
+
+volumes:
+  db_data:
+
+
+networks:
+  customerservicenetwork:
+    driver: bridge
+
+
+
+Dockerfile
+
+
+FROM maven:3.9.9-eclipse-temurin-21-jammy as build
+
+WORKDIR /app
+
+COPY pom.xml .
+
+COPY src ./src
+
+RUN mvn clean package -DskipTests
+
+FROM openjdk:21-jdk
+
+WORKDIR /app
+
+COPY --from=build /app/target/customerservice-0.1.jar app.jar
+
+CMD ["java", "-jar", "app.jar"]
+
+
+updated application.properties
+
+
+#Mon Dec 30 12:46:17 IST 2024
+micronaut.application.name=customerservice
+
+micronaut.router.static-resources.swagger-ui.mapping=/swagger-ui/**
+micronaut.router.static-resources.swagger-ui.paths=classpath\:META-INF/swagger/views/swagger-ui
+micronaut.router.static-resources.swagger.mapping=/swagger/**
+micronaut.router.static-resources.swagger.paths=classpath\:META-INF/swagger
+
+jpa.default.properties.hibernate.hbm2ddl.auto=update
+jpa.default.properties.hibernate.show_sql=true
+datasources.default.driver-class-name=com.mysql.cj.jdbc.Driver
+# datasources.default.url=jdbc:mysql://172.21.14.69:3306/customers_db
+# datasources.default.username=root
+# datasources.default.password=Prestige123
+
+# Optional: To enable SQL parameter logging
+jpa.default.properties.hibernate.use_sql_comments=true
+jpa.default.properties.hibernate.highlight_sql=true
+
+
+
+Day 2
+
+
+https://github.com/grails/grails-forge/releases/download/v6.2.2/grails-cli-6.2.2.zip
+
+
+
+choco install openjdk --version=17.0.2
+
+make sure that you get Java 17 and JAVA_HOME and PATH environment variables are set ...
+
+close command prompt if they're open
+
+grails --version
+
+
+| Grails Version: 6.2.2
+| JVM Version: 17.0.2
+
+grails help    
+
+grails list-profiles      
+
+grails profile-info rest-api 
+
+
+
+grails create-app studentsweb
+
+
+grails create-domain-class com.intsol.Student
+
+
+    String firstName
+    String lastName
+    String course
+    String summary
+    
+    
+    
+    
+    
+
+grails create-service com.intsol.Student
+
+
+studentservice.groovy changes
+
+
+    def get(id) {
+        Student.get(id)
+    }
+
+    def list() {
+        Student.list()
+    }
+
+    def save(student) {
+        student.save()
+    }
+
+    def delete(id) {
+        Student.get(id).delete()
+    }
+
+
+
+Download complete Grails Toolset
+
+https://github.com/grails/grails-core/releases/download/v6.2.2/grails-6.2.2.zip
+
+
+    in the terminal window
+    
+    grails compile
+    
+    
+
+grails create-controller com.intsol.Student
+
+and provide the following implementation
+
+
+  def studentService
+
+    def index() {
+        respond studentService.list()
+    }
+
+    def show(Long id) {
+        respond studentService.get(id)
+    }
+
+    def create() {
+        respond new Student(params)
+    }
+
+    def save(Student student) {
+        studentService.save(student)
+
+        redirect action: 'index', method: 'GET'
+    }
+
+    def delete(Long id) {
+        studentService.delete(id)
+
+        redirect action: 'index', method: 'GET'
+    }
+    
+    
+
+in the terminal,
+
+    grails generate-view com.intsol.Student
+    
+    
+ grails compile
+ 
+ // grails assemble
+ 
+ grails run-app
+ 
+     browser -> http://localhost:8080/
+     
+    
+
+REST API features in Grails
+
+grails create-app com.intsol.simplerestservices --profile rest-api
+
+
+in the Book.groovy 
+
+    String title
+    String author
+    String publisher
+
+
+import grails.rest.*
+
+@Resource(uri='/books')
+
+
+in the bootstrap.groovy
+
+init() =>
+
+
+        new Book(title: 'Machine Learning Unleashed', author: 'Rajesh K', publisher: 'Oreilly').save()
+        new Book(title: 'Deep Learning Unleashed', author: 'Mukhesh K', publisher: 'Oreilly').save()
+        
+        
+open a new terminal window
+
+curl -X GET http://localhost:8080/books
+
+curl -X GET http://localhost:8080/books/1
+curl -X GET http://localhost:8080/books/2
+
+
+curl -X GET http://localhost:8080/books/1.xml
+
+
+add formats=["json"]
+
+to the Resource annotation
+
+add readOnly=true
+
+open urlmappings.groovy
+
+        '/api/v1/books'(resources:'book')
+
+
+create a folder named "v1"
+
+and Author.groovy
+
+package com.intsol.v1
+
+import grails.rest.*
+
+@Resource(uri="authors-v1")
+class Author {
+
+    static namespace = "v1"
+
+    String name
+
+    static constraints = {
+        name blank:false
+    }
+
+    static mapping = {
+        table 'authors_v1'
+        id column: "id"
+        version false
+    }
+}
+
+
+create a folder named "v2"
+
+and AuthorV2.groovy
+
+package com.intsol.v2
+
+import grails.rest.*
+
+@Resource(uri='authors-v2')
+class AuthorV2 {
+
+    static namespace = 'v2'
+
+    String name
+
+    static constraints = {
+        name blank:false
+    }
+
+    static mapping = {
+        table 'authors_v2'
+        id column: "id"
+        version false
+    }
+}
+
+
+
+urlmapping
+
+        "/authors"(version:'1.0', resources: 'author', namespace: 'v1')
+        "/authors"(version:'2.0', resources: 'authorv2', namespace: 'v2')
+
+
+
+bootstrap
+
+package com.intsol
+
+class BootStrap {
+
+    def init = { servletContext ->
+        new Book(title: 'Machine Learning Unleashed', author: 'Rajesh K', publisher: 'Oreilly').save()
+        new Book(title: 'Deep Learning Unleashed', author: 'Mukhesh K', publisher: 'Oreilly').save()
+        new com.intsol.v1.Author(name: 'Rajkumar').save()
+        new com.intsol.v1.Author(name: 'Rajesh').save()
+        new com.intsol.v2.AuthorV2(name: 'Mukhesh').save()
+        new com.intsol.v2.AuthorV2(name: 'Anil').save()
+    }
+
+    def destroy = {
+    }
+
+}
+
+
+Professional Case Study to Build REST Services using Grails
+
+
+grails create-app com.intsol.professionalrestservices --profile rest-api
+
+
+open build gradle file
+
+add the following dependency
+
+implementation 'mysql:mysql-connector-java:8.0.33'
+
+
+open application.yml
+
+modify environments.development.datasource
+
+        dataSource:
+            driverClassName: com.mysql.jdbc.Driver
+            dbCreate: create-drop
+            url: jdbc:mysql://localhost:3306/test
+            username: root
+            password: Prestige123
+            
+
+    environments.production.datasource
+    
+            dataSource:
+            driverClassName: com.mysql.jdbc.Driver
+            dbCreate: create-drop
+            url: jdbc:mysql://localhost:3306/test
+            username: root
+            password: Prestige123
+
+
+docker run -d -t -p 3306:3306 --name dbserver -e MYSQL_ROOT_PASSWORD=Prestige123 -e MYSQL_DATABASE=test mysql
+
+to verify
+
+    docker desktop -> containers -> select the container
+    
+        exec -> bash
+        
+        mysql -u root -p
+        
+        Prestige123
+        
+        in mysql shell,
+        
+            show databases;
+
+
+grails create-domain-class com.intsol.Product
+
+
+
+package com.intsol
+
+class Product {
+
+    String name
+    Double price
+    String description
+
+    static constraints = {
+        name blank:false
+        price range:0.1..1000.00
+    }
+
+}
+
+
+
+open ProductSpec.groovy
+
+
+package com.intsol
+
+import grails.testing.gorm.DomainUnitTest
+import spock.lang.Specification
+
+class ProductSpec extends Specification implements DomainUnitTest<Product> {
+
+    def setup() {
+    }
+
+    def cleanup() {
+    }
+
+    void 'test domain class validation'() {
+        when: 'A domain class is saved with invalid data'
+        Product product = new Product(name: '', price: -2.0d)
+        product.save()
+
+        then: 'There were errors and the data was not saved'
+        product.hasErrors()
+        product.errors.getFieldError('price')
+        product.errors.getFieldError('name')
+        Product.count() == 0
+    }
+
+    void 'test domain class validation 2'() {
+        when: 'A valid domain is saved'
+        Product product = new Product()
+
+        product.name = 'Banana'
+        product.price = 2.15d
+        product.description = "A Simple Product"
+        product.save()
+
+        then: 'The product was saved successfully'
+        Product.count() == 1
+        Product.first().price == 2.15d
+    }
+
+}
+
+
+
+in the application.yaml and modify the datasource for testing
+
+    to create-drop
+    
+
+grails test-app --stacktrace
+
+
+grails create-service com.intsol.ProductService
+
+update the implementation
+
+package com.intsol
+
+import grails.gorm.services.Service
+
+@Service(Product)
+interface ProductService {
+
+    List<Product> findByNameLike(String name, Map args)
+
+}
+
+
+grails create-controller com.intsol.Product
+
+
+package com.intsol
+
+
+import grails.rest.*
+import grails.converters.*
+
+import groovy.transform.CompileStatic
+
+@CompileStatic
+class ProductController extends RestfulController {
+	static responseFormats = ['json', 'xml']
+
+    ProductService productService
+    
+    ProductController() {
+        super(Product)
+    }
+	
+    def search(String q, Integer max ) { 
+        if (q) {
+            respond productService.findByNameLike("%${q}%".toString(), [max: Math.min( max ?: 10, 100)]) // <3>
+        }
+        else {
+            respond([]) 
+        }
+    }
+}
+
+
+
+urlmapping.groovy
+
+
+
+        '/products'(resources: 'product') {
+            collection {
+                '/search'(controller: 'product', action: 'search')
+            }
+        }
+        
+        
+ common commands for application development
+ 
+ 
+ 
+ 0: cd \000-Bravura\1-Grails\demonstrations                                                                      
+1: dir                                                                                                          
+2: grails create-app com.intsol.professionalrestservices --profile rest-api                                     
+3: cd professionalrestservices                                                                                  
+4: code .                                                                                                       
+5: docker run -d -t -p 3306:3306 --name dbserver -e MYSQL_ROOT_PASSWORD=Prestige123 -e MYSQL_DATABASE=test mysql
+6: grails create-domain-class com.intsol.Product                                                                
+7: grails test-ap                                                                                               
+8: t                                                                                                            
+9: y                                                                                                            
+10: grails test-app                                                                                             
+11: grails test-app --stacktrace                                                                                
+12: grails create-service com.intsol.Product                                                                    
+13: grails create-controller com.intsol.Product                                                                 
+14: grails compile                                                                                              
+15: grails help                                                                                                 
+16: grails assemble                                                                                             
+17: dir build\libs                                                                                              
+18: cls                                                                                                         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Day 3
+
+
+verify the following version of misc. tools
+
+    node --version
+    
+    code --version
+    
+    git --version
+    
+    
+md tsdemonstrations
+
+cd tsdemonstrations
+
+npm init -y
+
+code .
+
+in the vs terminal,
+
+    npm install typescript --save-dev
+    
+ npx tsc -init
+ 
+ 
+replace the tsconfig.json with the below content
+
+
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "NodeNext",
+        "moduleResolution": "nodenext",
+        "outDir": "out",
+        "sourceMap": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": false
+    },
+    "include": [
+        "src/**/*"
+    ],
+}
+
+
+
+create a folder named "src" and file named "app.ts"
+
+const message: string = "Welcome to the World of TypeScript";
+
+console.log(message);
+
+
+npm install tsx --save-dev
+
+npx tsx .\src\app.ts
+
+
+vs code extensions install the extension name
+
+"javascript and typescript nightly" from microsoft
+
+left navigation -> debug -> create a launch.json file
+
+    select launch - node program
+    
+ add the following changes
+ 
+                 "preLaunchTask": "tsc: build - tsconfig.json",
+            "outFiles": ["${workspaceFolder}/out/**/*.js"]
+            
+          under configuration entry
+
+add the following entries in .gitignore
+
+    out
+    out\*\**
+    
+  put a breakpoint in app.ts ...
+  
+  debug the app
+  
+  
+complete launch.json file
+
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Program",
+            "program": "${workspaceFolder}/src/app.ts",
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node",
+            "preLaunchTask": "tsc: build - tsconfig.json",
+            "outFiles": ["${workspaceFolder}/out/**/*.js"]
+        }
+
+    ]
+}
+
+
+MainClass.ts
+
+class MainClass {
+    static main(): void {
+        const message: string = "Welcome to the World of TypeScript";
+
+        console.log(message);
+    }
+}
+
+export default MainClass;
+
+
+app.ts
+
+import MainClass from "./MainClass";
+
+MainClass.main();
+
+
+
+
+under models folder, Customer.ts
+
+
+export default class Customer {
+    private name: string;
+    private age: number;
+
+    constructor(name: string, age: number) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public toString(): string {
+        return `Name: ${this.name}, Age: ${this.age}`;
+    }
+}
+
+
+under services folder, CustomerService.ts
+
+
+import Customer from "../models/Customer";
+
+const DEFAULT_TIMEOUT: number = 1000;
+
+class CustomerService {
+    getCustomers(): Promise<Customer[]> {
+        const customers: Customer[] = [
+            new Customer("John Doe", 30),
+            new Customer("Jon Snow", 25),
+            new Customer("Bill Gates", 65),
+            new Customer("Steve Jobs", 60)
+        ];
+
+        let promise = new Promise<Customer[]>(
+            (resolve, reject) => {
+                setTimeout(() => {
+                    resolve(customers);
+                }, DEFAULT_TIMEOUT);
+            });
+
+        return promise;
+    }
+}
+
+export default CustomerService;
+
+
+under factories, CustomerServiceType.ts
+
+
+export enum CustomerServiceType {
+    Gold = "Gold",
+    Silver = "Silver",
+    Bronze = "Bronze",
+    Online = "Online"
+}
+
+
+CustomerServiceFactory.ts
+
+import CustomerService from "../services/CustomerService";
+import { CustomerServiceType } from "./CustomerServiceType";
+
+export default class CustomerServiceFactory {
+    static getCustomerService(customerServiceType: CustomerServiceType): CustomerService {
+        switch (customerServiceType) {
+            case CustomerServiceType.Gold:
+            case CustomerServiceType.Silver:
+            case CustomerServiceType.Bronze:
+                return new CustomerService();
+            case CustomerServiceType.Online:
+                throw new Error("Online Customer Service is not yet implemented");
+            default:
+                throw new Error("Invalid Customer Service Type");
+        }
+    }
+}
+
+
+main.ts
+
+import CustomerServiceFactory from "./factories/CustomerServiceFactory";
+import { CustomerServiceType } from "./factories/CustomerServiceType";
+import CustomerService from "./services/CustomerService";
+
+class MainClass {
+    static async main() {
+        try {
+            let customerService = CustomerServiceFactory.getCustomerService(CustomerServiceType.Gold);
+            let customers = await customerService.getCustomers();
+
+            customers.forEach((customer) => {
+                console.log(`Customer : ${customer}`);
+            });
+        } catch (error) {
+            console.error(`Error Occurred, Details : \n\t${error}`);
+        }
+    }
+}
+
+export {
+    MainClass
+};
+
+app.ts
+
+
+// import MainClassM from "./MainClass";
+
+import { MainClass as MainClassM } from './MainClass'
+
+MainClassM.main()
+    .then(() => {
+        console.log('MainClass.main() completed successfully');
+    })
+    .catch((error) => {
+        console.error(`Error occurred, Details : \n\t${error}`);
+    });
+
+
+
+
+
+Enhance CustomerService functionality to return customer details by id ...
+
+And make sure that you DO NOT call getCustomers inside the new functionality. Optimize it to such a way that both functions use same data as a constant.
+
+
+
+updated solution
+
+export default class Customer {
+    constructor(public id: number, public name: string, public age: number) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
+    }
+
+    public toString(): string {
+        return `Id: ${this.id}, Name: ${this.name}, Age: ${this.age}`;
+    }
+}
+
+
+import Customer from "../models/Customer";
+import ICustomerService from "./ICustomerService";
+
+const DEFAULT_TIMEOUT: number = 1000;
+const customers: Customer[] = [
+    new Customer(1, "John Doe", 30),
+    new Customer(2, "Jon Snow", 25),
+    new Customer(3, "Bill Gates", 65),
+    new Customer(4, "Steve Jobs", 60)
+];
+
+class CustomerService implements ICustomerService {
+    getCustomers(): Promise<Customer[]> {
+        let promise = new Promise<Customer[]>(
+            (resolve, reject) => {
+                setTimeout(() => {
+                    resolve(customers);
+                }, DEFAULT_TIMEOUT);
+            });
+
+        return promise;
+    }
+
+    getCustomerById(id: number): Promise<Customer> {
+        let promise = new Promise<Customer>(
+            (resolve, reject) => {
+                let customer = customers.find(c => c.id === id);
+                if (customer) {
+                    resolve(customer);
+                } else {
+                    reject(`Customer with id ${id} not found`);
+                }
+            });
+
+        return promise;
+    }
+}
+
+export default CustomerService;
+
+
+
+
+import CustomerServiceFactory from "./factories/CustomerServiceFactory";
+import { CustomerServiceType } from "./factories/CustomerServiceType";
+import CustomerService from "./services/CustomerService";
+import ICustomerService from "./services/ICustomerService";
+
+class MainClass {
+    static async main() {
+        try {
+            let customerService: ICustomerService =
+                CustomerServiceFactory.getCustomerService(CustomerServiceType.Gold);
+            let customers = await customerService.getCustomers();
+
+            customers.forEach((customer) => {
+                console.log(`Customer : ${customer}`);
+            });
+
+            let customerId = 1
+            let filteredCustomer = await customerService.getCustomerById(1);
+
+            console.log(`Customer Details By Id ${customerId} : ${filteredCustomer}`);
+        } catch (error) {
+            console.error(`Error Occurred, Details : \n\t${error}`);
+        }
+    }
+}
+
+export {
+    MainClass
+};
+
+
+ICustomerService.ts
+
+import Customer from "../models/Customer";
+
+export default interface ICustomerService {
+    getCustomers(): Promise<Customer[]>;
+    getCustomerById(id: number): Promise<Customer>;
+}
+
+
+
+
+
+customers.csv in the root directory
+
+
+id,name,age
+1,Ahmed Harg,33
+2,Britta Gravells,60
+3,Garner Tewkesberrie,32
+4,Timmy Dodamead,51
+5,Susie Gioani,31
+6,Katusha Rayment,39
+7,Kyle Itzkovwich,31
+8,Lawrence Crowcroft,47
+9,Andre Foston,35
+10,Osmund Fishe,30
+11,Nikolos Giraldo,54
+12,Christalle Anfonsi,51
+13,Ranice Keyhoe,59
+14,Deni Rosenhaus,56
+15,Christabel Buxey,44
+16,Dallon Fishleigh,54
+17,Eydie D'Enrico,48
+18,Gretta Bolin,45
+19,Emmey Miklem,31
+20,Neysa Rusbridge,45
+21,Kevina Briggs,50
+22,Uriah Budgett,33
+23,Torrance Sarton,36
+24,Clyde Douglas,38
+25,Agace Landman,30
+26,Ossie Brothwood,59
+27,Janel Esposi,45
+28,Ciel Lavelle,30
+29,Belinda Starie,34
+30,Benny Emerine,39
+31,Gallagher Tofanelli,32
+32,Rozina Gregol,56
+33,Mab Bencher,56
+34,Mohammed Edensor,49
+35,Gilligan Baurerich,59
+36,Dixie Guinn,39
+37,Arron Billing,50
+38,Meryl Southcoat,37
+39,Hansiain Lilion,57
+40,Gertrudis Wiburn,54
+41,Mersey Gwynne,40
+42,Ines McLeese,57
+43,Joycelin Tume,33
+44,Rhona Ferrarello,37
+45,Burgess Plitz,41
+46,Tadio Prowting,41
+47,Romona June,44
+48,Duke Graeber,45
+49,Agnella Dowry,41
+50,Maryjo Mattiato,51
+
+
+
+import CustomerService from "../services/CustomerService";
+import ICustomerService from "../services/ICustomerService";
+import { initialize, OnlineCustomerService } from "../services/OnlineCustomerService";
+import { CustomerServiceType } from "./CustomerServiceType";
+
+const DATA_FILE = process.env.DATA_FILE || './data/customers.csv';
+
+export default class CustomerServiceFactory {
+    static async getCustomerService(customerServiceType: CustomerServiceType): Promise<ICustomerService> {
+        switch (customerServiceType) {
+            case CustomerServiceType.Gold:
+            case CustomerServiceType.Silver:
+            case CustomerServiceType.Bronze:
+                return new CustomerService();
+            case CustomerServiceType.Online:
+                await initialize(DATA_FILE);
+
+                return new OnlineCustomerService();
+            default:
+                throw new Error("Invalid Customer Service Type");
+        }
+    }
+}
+
+
+CustomerService.ts
+
+
+import Customer from "../models/Customer";
+import ICustomerService from "./ICustomerService";
+
+const DEFAULT_TIMEOUT: number = 1000;
+const customers: Customer[] = [
+    new Customer(1, "John Doe", 30),
+    new Customer(2, "Jon Snow", 25),
+    new Customer(3, "Bill Gates", 65),
+    new Customer(4, "Steve Jobs", 60)
+];
+
+class CustomerService implements ICustomerService {
+    searchCustomers(name: string): Promise<Customer[] | undefined> {
+        let promise = new Promise<Customer[] | undefined>(
+            (resolve, reject) => {
+                let filteredCustomers = customers.filter(
+                    c => c.name.toLowerCase().includes(name.toLowerCase()));
+
+                resolve(filteredCustomers);
+            });
+
+        return promise;
+    }
+
+    getCustomers(): Promise<Customer[]> {
+        let promise = new Promise<Customer[]>(
+            (resolve, reject) => {
+                setTimeout(() => {
+                    resolve(customers);
+                }, DEFAULT_TIMEOUT);
+            });
+
+        return promise;
+    }
+
+    getCustomerById(id: number): Promise<Customer> {
+        let promise = new Promise<Customer>(
+            (resolve, reject) => {
+                let customer = customers.find(c => c.id === id);
+                if (customer) {
+                    resolve(customer);
+                } else {
+                    reject(`Customer with id ${id} not found`);
+                }
+            });
+
+        return promise;
+    }
+}
+
+export default CustomerService;
+
+
+import Customer from "../models/Customer";
+
+export default interface ICustomerService {
+    getCustomers(): Promise<Customer[]>;
+    getCustomerById(id: number): Promise<Customer | undefined>;
+    searchCustomers(name: string): Promise<Customer[] | undefined>;
+}
+
+
+OnlineCustomerService.ts
+
+
+import Customer from "../models/Customer";
+import ICustomerService from "./ICustomerService";
+
+import fs from 'fs';
+import { parse } from 'csv-parse';
+
+const customerRecords: Customer[] = [];
+
+const initialize = (fileName: string): Promise<boolean> => {
+    let promise = new Promise<boolean>(
+        (resolve, reject) => {
+            try {
+                fs.createReadStream(fileName)
+                    .pipe(parse({ delimiter: ',' }))
+                    .on('data', (row) => {
+                        const customer = new Customer(
+                            parseInt(row[0]), row[1], row[2]);
+
+                        customerRecords.push(customer);
+                    })
+                    .on('end', () => {
+                        console.log('CSV file successfully processed');
+
+                        resolve(true);
+                    });
+            } catch (err) {
+                reject(err);
+            }
+        }
+    );
+
+    return promise;
+};
+
+class OnlineCustomerService implements ICustomerService {
+    searchCustomers(name: string): Promise<Customer[] | undefined> {
+        return new Promise<Customer[] | undefined>((resolve, reject) => {
+            let customers = customerRecords.filter(
+                c => c.name.toLowerCase().includes(name.toLowerCase()));
+
+            resolve(customers);
+        });
+    }
+
+    getCustomers(): Promise<Customer[]> {
+        return new Promise<Customer[]>((resolve, reject) => {
+            resolve(customerRecords);
+        });
+    }
+
+    getCustomerById(id: number): Promise<Customer | undefined> {
+        return new Promise<Customer | undefined>((resolve, reject) => {
+            let customer = customerRecords.find(c => c.id === id);
+
+            resolve(customer);
+        });
+    }
+
+}
+
+export {
+    OnlineCustomerService,
+    initialize
+}
+
+
+
+MainClass.ts
+
+
+import { stdin as input, stdout as output } from 'node:process';
+import * as readline from 'node:readline/promises'; // Import readline module
+
+import CustomerServiceFactory from "./factories/CustomerServiceFactory";
+import { CustomerServiceType } from "./factories/CustomerServiceType";
+import CustomerService from "./services/CustomerService";
+import ICustomerService from "./services/ICustomerService";
+
+class MainClass {
+    static async main() {
+        const rl = readline.createInterface({
+            input,
+            output
+        });
+
+        try {
+            console.log('Welcome to Customer Service Application');
+
+            const customerServiceType = await rl.question("Enter the type of customer service (Online/Gold/Silver/Bronze): ");
+            const customerService: ICustomerService =
+                await CustomerServiceFactory.getCustomerService(customerServiceType as CustomerServiceType);
+            const customerId = parseInt(await rl.question("Enter the customer id: "));
+            const customer = await customerService.getCustomerById(customerId);
+
+            if (customer) {
+                console.log(`Customer Details : ${customer}`);
+            } else {
+                console.log(`Customer with id ${customerId} not found`);
+            }
+
+            const customerName = await rl.question("Enter the customer name (Partial): ");
+            const customers = await customerService.searchCustomers(customerName);
+
+            if (customers) {
+                console.log(`Customers found with name ${customerName} :`);
+
+                customers.forEach(c => console.log(c));
+            } else {
+                console.log(`No customers found with name ${customerName}`);
+            }
+        } catch (error) {
+            console.error(`Error Occurred, Details : \n\t${error}`);
+        } finally {
+            rl.close();
+        }
+    }
+}
+
+export {
+    MainClass
+};
+
+
+install the following packages
+
+    npm install csv-parse 
+    
+    npm install @types/csv-parse --save-dev
+    
+
+updated launch.json
+
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Program",
+            "program": "${workspaceFolder}/src/app.ts",
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node",
+            "preLaunchTask": "tsc: build - tsconfig.json",
+            "outFiles": ["${workspaceFolder}/out/**/*.js"],
+            "env": {
+                "DATA_FILE": "${workspaceFolder}/data/customers.csv"
+            }
+        }
+
+    ]
+}
+
+npm install @types/node --save-dev
+
+execute the application in the terminal
+
+npx tsx .\src\app.ts
+
+
+Problem Statement:
+
+1. Ensure that OnlineCustomerService performs initialize as and when it's required, not to be delegated to CustomerServiceFactory
+
+2. Node Runtime automatically terminates once the application is completed its' processing
+
+3. *** OPTIONAL *** : apply lazy loading of data only when it's invoked by the MainClass
+
+
+
+**** FEATURE ****
+
+   Build a feature to read and process customers data which is in JSON format.
+   
+   Build a feature that integrates both CSV and JSON Customer services as an unified service by applying FACADE
+ 
+   CustomerServiceType introduces an enumeration member INTEGRATED
+   
+   
+
+
+
+
+
+React Snippets
+
+choco install yarn --version=1.22.22
+
+yarn --version
+
+yarn create react-app firstreactapp --template typescript
+
+cd firstreactapp
+
+yarn install
+
+code .
+
+
+delete the following files in the src directory
+
+    app.tsx
+    app.css
+    vitaltests.ts
+    
+    ico / jpg files 
+
+
+open index.tsx and replace with the following content
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
+
+root.render(
+  <React.StrictMode>
+  </React.StrictMode>
+);
+
+
+so now, you have only the following files in src directory
+
+    index.tsx
+    react-app-env.d.ts
+    setupTests.ts
+    
+    
+create a file named "Banner.tsx" under src\
+
+const Banner = (props: any) => {
+    return (
+        <div>
+            <h1>
+                {props.bannerTitle}
+            </h1>
+        </div>
+    );
+};
+
+export default Banner;
+
+
+
+
+App.tsx in src\
+
+
+import Banner from "./Banner"
+
+const App = () => {
+    return (
+        <>
+            <Banner bannerTitle="Welcome to the World of React!" />
+        </>
+    )
+};
+
+export default App;
+
+
+update the index.tsx
+
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
+
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+
+
+
+in the terminal,
+
+yarn start
+
+
+
+create a file named .env
+
+REACT_APP_CUSTOMER_SERVICE_URL=http://localhost:8080/api/v1/customers
+
+EnvironmentConfiguration.ts
+
+class EnvironmentConfiguration {
+    static getCustomerServiceUrl() {
+        if (process.env.NODE_ENV === 'development') {
+            return process.env.REACT_APP_CUSTOMER_SERVICE_URL;
+        } else {
+            return process.env.REACT_APP_CUSTOMER_SERVICE_URL;;
+        }
+    }
+}
+
+export default EnvironmentConfiguration;
+
+
+updated index.tsx
+
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import EnvironmentConfiguration from './EnvironmentConfiguration';
+
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
+
+const customerServiceUrl = EnvironmentConfiguration.getCustomerServiceUrl();
+
+console.log(`Customer service URL: ${customerServiceUrl}`);
+
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+
+yarn build
+
+yarn start
+
+
+
+yarn build
+
+yarn global add serve
+
+serve -s build
+
+
+Banner.tsx
+
+
+import Button from "./Button";
+import { CustomersViewer } from "./CustomersViewer";
+
+const Banner = (props: any) => {
+    return (
+        <div>
+            <h1>
+                {props.bannerTitle}
+            </h1>
+
+            <div>
+                <Button text="Understanding How useState works!!!" />
+            </div>
+
+            <br/>
+
+            <CustomersViewer />
+        </div>
+    );
+};
+
+export default Banner;
+
+
+Button.css
+
+body {
+    padding: 25px;
+    font-size: 25px;
+}
+
+.light-mode {
+    background-color: white;
+    color: black;
+}
+
+.dark-mode {
+    background-color: black;
+    color: white;
+}
+
+
+
+import { useState } from "react";
+import './Button.css';
+
+const Button = (props: any) => {
+    const [theme, setTheme] = useState(true);
+
+    const toggleDarkTheme = () => {
+        setTheme(!theme);
+    };
+
+    return (
+        <>
+            <div>
+                <button onClick={toggleDarkTheme}>
+                    Toggle dark theme
+                </button>
+
+                <div className={theme ? "light-mode" : "dark-mode"}>
+                    {props.text}
+                </div>
+            </div>
+        </>
+    )
+};
+
+export default Button;
+
+
+
+
+Customer.ts
+
+
+export default class Customer {
+    constructor(public id: number, public name: string,
+        public email: string, public phone: string,
+        public address: string) { }
+
+    toString(): string {
+        return `Customer[${this.id},${this.name},${this.email},${this.phone},${this.address}]`;
+    }
+}
+
+
+
+CustomerService.ts
+
+
+import Customer from "./Customer";
+import EnvironmentConfiguration from "./EnvironmentConfiguration";
+
+export default class CustomerService {
+    static getCustomers(): Promise<Customer[]> {
+        let customerServiceUrl: string | undefined =
+            EnvironmentConfiguration.getCustomerServiceUrl();
+
+        if (customerServiceUrl !== undefined) {
+            return fetch(customerServiceUrl)
+                .then(response => response.json())
+                .then(data => data.map((c: any) =>
+                    new Customer(c.id, c.name, c.email, c.phone, c.address)));
+        } else {
+            return Promise.reject("Customer Service URL is not defined");
+        }
+    }
+}
+
+
+CustomersViewer.tsx
+
+
+import { useEffect, useState } from "react";
+import Customer from "./Customer";
+import CustomerService from "./CustomerService";
+
+export const CustomersViewer = () => {
+    let fetchedCustomers: Customer[] = [];
+
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [customers, setCustomers] = useState(fetchedCustomers);
+
+    useEffect(() => {
+        CustomerService.getCustomers()
+            .then(customerRecords => {
+                setCustomers(customerRecords);
+                setLoading(false);
+            })
+            .catch(error => {
+                setLoading(false);
+                setError(error);
+            });
+    }, []);
+
+    if (loading) {
+        return (
+            <>
+                <div>
+                    Loading ...
+                </div>
+            </>
+        )
+    }
+
+    if (error) {
+        return (
+            <>
+                <div>
+                    Error Occurred, Details : {error}
+                </div>
+            </>
+        )
+    }
+
+
+    return (
+        <>
+            <h1>Customers Information</h1>
+            <ul>
+                {
+                    customers.map((c: Customer) =>
+                        <li key={c.id}>
+                            {c.toString()}
+                        </li>
+                    )
+                }
+            </ul>
+        </>
+    );
+};
+
+
+
+
+
+EnvironmentConfiguration.ts
+
+class EnvironmentConfiguration {
+    static getCustomerServiceUrl(): string | undefined {
+        let serviceUrl: string | undefined = "";
+
+        if (process.env.NODE_ENV === 'development') {
+            serviceUrl = process.env.REACT_APP_CUSTOMER_SERVICE_URL;
+        } else {
+            serviceUrl = process.env.REACT_APP_CUSTOMER_SERVICE_URL;;
+        }
+
+        return serviceUrl;
+    }
+}
+
+export default EnvironmentConfiguration;
+
+
+
+
+.env changes
+
+
+REACT_APP_CUSTOMER_SERVICE_URL=https://677679d412a55a9a7d0bda7c.mockapi.io/api/v1/customers
+
+
+
+yarn start
+
+
+Requirement:
+
+Add a new functionality to the CustomerViewer and allow the user to be able to search for a partial customer name and display search results ...
+
+
+Day 4
+
+create a folder named "reduxweb"
+
+md reduxweb
+
+cd reduxweb
+
+npm init -y
+
+npm install http-server
+
+
+code .
+
+create a file named ".gitignore" and add the following content
+
+node_modules
+
+
+create a folder named public, in the root
+
+create a file named "index.html" and paste the following contents
+
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Learning Redux</title>
+</head>
+
+<body>
+    <div>
+        <h1>Understanding Redux</h1>
+
+        <br />
+
+        <div>
+            <button id="btnAddAuthor">Add Author</button>
+            &nbsp;
+            <button id="btnAddBook">Add Book</button>
+        </div>
+    </div>
+
+    <script src="./lib/redux.min.js"></script>
+    <script src="./lib/app.js"></script>
+</body>
+
+</html>
+
+
+
+create a folder named "lib" under public
+
+copy the redux.min.js in the lib folder
+
+create a file named "app.js" under lib folder
+
+
+
+const ACTION_TYPES = {
+    ADD_BOOK: "AddBook",
+    ADD_AUTHOR: "AddAuthor"
+};
+
+const ActionCreators = {
+    addAuthor: (author) => {
+        return {
+            type: ACTION_TYPES.ADD_AUTHOR,
+            author
+        };
+    },
+    addBook: (book) => {
+        return {
+            type: ACTION_TYPES.ADD_BOOK,
+            book
+        };
+    }
+};
+
+const addBookReducer = (state, payload) => {
+    let newState = state;
+
+    if (payload.type === ACTION_TYPES.ADD_BOOK) {
+        newState = [...state, payload.book];
+    }
+
+    return newState;
+};
+
+const addAuthorReducer = (state, payload) => {
+    let newState = state;
+
+    if (payload.type === ACTION_TYPES.ADD_AUTHOR) {
+        newState = [...state, payload.author];
+    }
+
+    return newState;
+};
+
+const combinedReducers = (state, payload) => {
+    return {
+        books: addBookReducer(state.books, payload),
+        authors: addAuthorReducer(state.authors, payload)
+    };
+};
+
+
+const initialState = {
+    books: [],
+    authors: []
+};
+
+const store = Redux.createStore(
+    combinedReducers,
+    initialState,
+    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+);
+
+store.subscribe(() => {
+    console.log(store.getState());
+});
+
+const generateId = () =>
+    Math.floor(Math.random() * (1000000 - 1) + 1);
+
+document.getElementById("btnAddBook").onclick = () => {
+    let bookInfo = {
+        id: generateId(),
+        title: `Book-${generateId()}`,
+        isbn: `ISBN-${generateId()}`
+    };
+
+    const payload = ActionCreators.addBook(bookInfo);
+
+    store.dispatch(payload);
+};
+
+document.getElementById("btnAddAuthor").onclick = () => {
+    let authorInfo = {
+        id: generateId(),
+        name: `AUTHOR-${generateId()}`,
+        email: `author-${generateId()}@gmail.com`
+    };
+
+    const payload = ActionCreators.addAuthor(authorInfo);
+
+    store.dispatch(payload);
+};
+
+
+
+in the terminal of vscode,
+
+npx http-server
+
+browser -> http://localhost:8080
+
+devtools -> redux tab
+
+verify state is working ....
+
+
+Redux Hooks Support
+
+yarn create react-app --template typescript reduxhooksweb
+
+clean up all the files except the following
+
+index.tsx
+react-app-env.d.ts
+setupTests.ts
+
+create app.tsx
+
+import CounterComponent from "./CounterComponent";
+
+const App = () => {
+    return (
+        <>
+            <CounterComponent />
+        </>
+    );
+};
+
+export default App;
+
+create CounterComponent.tsx
+
+import { useReducer } from "react";
+
+const combinedReducers = (state: any, payload: any) => {
+    if (payload.type === "INCREMENT") {
+        return state + 1;
+    }
+
+    if (payload.type === "DECREMENT") {
+        return state - 1;
+    }
+
+    if (payload.type === "RESET") {
+        return 0;
+    }
+};
+
+const CounterComponent = () => {
+    const [currentState, dispatcher] = useReducer(combinedReducers, 0);
+
+    const execute = (type: string) => {
+        dispatcher({
+            type
+        });
+    };
+
+    return (
+        <>
+            <h1>Understanding Redux using Hooks</h1>
+            <h2>CURRENT COUNT: {currentState}</h2>
+
+            <button onClick={() => execute("INCREMENT")}>Increment</button> &nbsp;
+            <button onClick={() => execute("DECREMENT")}>Decrement</button> &nbsp;
+            <button onClick={() => execute("RESET")}>Reset</button>
+        </>
+    );
+};
+
+export default CounterComponent;
+
+updated index.tsx
+
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
+
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+
+in the terminal, yarn start
+
+
+verify it's working ...
+
+use the below provided URL to get custom  hooks for interval (scheduled) execution
+
+https://codesandbox.io/p/sandbox/useinterval-demo-typescript-3zddk?file=%2Fsrc%2Findex.tsx%3A7%2C1-28%2C3
+
+and implement the functionality of executing the dispatcher every 5 seconds
+
+
+create a file named "CustomHooks.tsx"
+
+import { useEffect, useRef } from "react";
+
+interface IUseInterval {
+    (callback: () => void, interval: number): void;
+}
+
+const useInterval: IUseInterval = (callback, interval) => {
+    const savedCallback = useRef<(() => void) | null>(null);
+    // After every render, save the latest callback into our ref.
+    useEffect(() => {
+        savedCallback.current = callback;
+    });
+
+    useEffect(() => {
+        function tick() {
+            if (savedCallback.current) {
+                savedCallback.current();
+            }
+        }
+
+        let id = setInterval(tick, interval);
+        return () => clearInterval(id);
+    }, [interval]);
+};
+
+export default useInterval;
+
+
+
+updated countercomponent.tsx
+
+import { useReducer } from "react";
+import useInterval from "./CustomHooks";
+
+const combinedReducers = (state: any, payload: any) => {
+    if (payload.type === "INCREMENT") {
+        return state + 1;
+    }
+
+    if (payload.type === "DECREMENT") {
+        return state - 1;
+    }
+
+    if (payload.type === "RESET") {
+        return 0;
+    }
+};
+
+const DEFAULT_INTERVAL = 5000;
+
+const CounterComponent = () => {
+    const [currentState, dispatcher] = useReducer(combinedReducers, 0);
+
+    const execute = (type: string) => {
+        dispatcher({
+            type
+        });
+    };
+
+    useInterval(() => {
+        execute("INCREMENT");
+    }, DEFAULT_INTERVAL);
+
+    return (
+        <>
+            <h1>Understanding Redux using Hooks</h1>
+            <h2>CURRENT COUNT: {currentState}</h2>
+
+            <button onClick={() => execute("INCREMENT")}>Increment</button> &nbsp;
+            <button onClick={() => execute("DECREMENT")}>Decrement</button> &nbsp;
+            <button onClick={() => execute("RESET")}>Reset</button>
+        </>
+    );
+};
+
+export default CounterComponent;
+
+
+create a file named "CustomerViewer.tsx"
+
+import { useReducer, useState } from "react";
+
+class Customer {
+    constructor(public id: number, public name: string, public email: string, public age: number) { }
+}
+
+class CustomerService {
+    getCustomers() {
+        return [
+            new Customer(11, "Northwind Traders", "info@nwt.com", 56),
+            new Customer(12, "Southwind Traders", "info@nwt.com", 50),
+            new Customer(13, "Eastwind Traders", "info@nwt.com", 49),
+            new Customer(14, "Westwind Traders", "info@nwt.com", 63),
+            new Customer(15, "Adventureworks", "info@nwt.com", 67),
+            new Customer(16, "Footmart", "info@nwt.com", 40)
+        ];
+    }
+}
+
+const reducers = (state: any, action: any) => {
+    let newState = state;
+
+    if (action.type === "LOAD") {
+        const customerService = new CustomerService();
+
+        newState = customerService.getCustomers();
+    }
+
+    if (action.type === "FILTER") {
+        const ageFilterValue = action.payload;
+
+        newState = state.filter((element: Customer) => element.age >= ageFilterValue);
+    }
+
+    return newState;
+};
+
+
+const CustomersViewer = () => {
+    const [customers, dispatcher] = useReducer(reducers, []);
+    const [age, setAge] = useState(40);
+
+    const executeAction = (actionString: any, payload?: any) => {
+        const action = {
+            type: actionString,
+            payload
+        };
+
+        dispatcher(action);
+    };
+
+    return (
+        <>
+            <h1>Customers Viewer</h1>
+
+            <button onClick={() => executeAction("LOAD")}>Load</button>
+            &nbsp;
+            <input type="text"
+                value={age}
+                onChange={(e) => setAge(parseInt(e.target.value))}
+                placeholder="Enter Age to Filter Customer Records" />
+
+            <button onClick={() => executeAction("FILTER", age)}>Filter</button>
+
+            {
+                customers &&
+
+                (
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Customer #</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Age</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {
+                                customers.map((record: Customer) => {
+                                    return (
+                                        <tr key={record.id}>
+                                            <td>{record.id}</td>
+                                            <td>{record.name}</td>
+                                            <td>{record.email}</td>
+                                            <td>{record.age}</td>
+                                        </tr>
+                                    )
+                                })
+                            }
+                        </tbody>
+                    </table>
+                )
+            }
+        </>
+    );
+};
+
+export default CustomersViewer;
+
+
+
+update app.tsx
+
+
+// import CounterComponent from "./CounterComponent";
+import CustomersViewer from "./CustomerViewer";
+
+const App = () => {
+    return (
+        <>
+            {/* <CounterComponent /> */}
+
+            <CustomersViewer />
+        </>
+    );
+};
+
+export default App;
+
+
+useContext Features
+(Sharing data between components)
+
+
+SecurityComponent.tsx
+
+
+import { createContext, useContext, useRef, useState } from "react";
+
+type SecurityContextType = {
+    userName: string,
+    setUserName: (un: string) => void
+}
+
+const defaultValue: SecurityContextType = {
+    userName: "",
+    setUserName: (name: string) => { }
+}
+
+const SecurityContext = createContext<SecurityContextType>(defaultValue);
+
+const LoginComponent = () => {
+    const { setUserName } = useContext(SecurityContext);
+    const textRef = useRef<HTMLInputElement>(null);
+
+    const login = () => {
+        // AUTHENTICATION LOGIC
+
+        let currentUserName = textRef?.current?.value;
+
+        if (currentUserName?.startsWith("bravura")) {
+            setUserName(currentUserName);
+        }
+    };
+
+    return (
+        <>
+            <input type="text" ref={textRef} placeholder="Enter Login Name" />
+
+            &nbsp;
+
+            <button onClick={login}>Login</button>
+        </>
+    );
+};
+
+const ProfileComponent = () => {
+    const { userName, setUserName } = useContext(SecurityContext);
+
+    const logout = () => {
+        setUserName("");
+    };
+
+    return (
+        <>
+            LOGGED IN USER : {userName}
+
+            <button onClick={logout}>Logout</button>
+        </>
+    );
+};
+
+const SecurityComponent = () => {
+    const [loggedInUser, setLoggedInUser] = useState("");
+
+    return (
+        <>
+            <SecurityContext.Provider value={{ userName: loggedInUser, setUserName: setLoggedInUser }}>
+                {
+                    !loggedInUser &&
+                    (
+                        <LoginComponent />
+                    )
+                }
+
+                {
+                    loggedInUser &&
+                    (
+                        <ProfileComponent />
+                    )
+                }
+            </SecurityContext.Provider>
+        </>
+    )
+};
+
+export default SecurityComponent;
+
+
+updated app.tsx
+
+// import CounterComponent from "./CounterComponent";
+// import CustomersViewer from "./CustomerViewer";
+
+import SecurityComponent from "./SecurityComponent";
+
+const App = () => {
+    return (
+        <>
+            {/* <CounterComponent /> */}
+
+            {/* <CustomersViewer /> */}
+
+            <SecurityComponent />
+        </>
+    );
+};
+
+export default App;
+
+
+Routing Features
+
+
+create a new project and cleanup the project structure ...
+
+yarn add react-router-dom
+
+app.tsx
+
+
+import { Route, Routes } from "react-router-dom";
+import Home from "./Home";
+import AboutUs from "./AboutUs";
+import Contact from "./Contact";
+
+const App = () => {
+    return (
+        <>
+            <h1>Welcome to React Router</h1>
+            <h2>Happy to welcome to the world of React Routing!</h2>
+
+            <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/about-us" element={<AboutUs />} />
+                <Route path="/contact" element={<Contact />} />
+            </Routes>
+        </>
+    );
+};
+
+export default App;
+
+
+home.tsx
+
+import Navigation from "./Navigation";
+
+const Home = () => {
+    return (
+        <>
+            <h3>Welcome Home!</h3>
+
+            <br />
+
+            <Navigation isHome={true} />
+        </>
+    );
+};
+
+export default Home;
+
+
+
+navigation.tsx
+
+import { Link } from "react-router-dom";
+
+const Navigation = (props: any) => {
+    return (
+        <>
+            {
+                props.isHome &&
+
+                <div>
+                    <Link to="/about-us">About Us</Link>
+                    |
+                    <Link to="/contact">Contact</Link>
+                </div>
+            }
+
+            {
+                props.isAboutUs &&
+
+                <div>
+                    <Link to="/">Home</Link>
+                    |
+                    <Link to="/contact">Contact</Link>
+                </div>
+            }
+
+
+            {
+                props.isContact &&
+
+                <div>
+                    <Link to="/">Home</Link>
+                    |
+                    <Link to="/about-us">About Us</Link>
+                </div>
+            }
+        </>
+    );
+};
+
+export default Navigation;
+
+
+aboutus.tsx
+
+
+import Navigation from "./Navigation";
+
+const AboutUs = () => {
+    return (
+        <>
+            <h3>About the Company</h3>
+
+            <br />
+
+            <Navigation isAboutUs={true} />
+        </>
+    );
+};
+
+export default AboutUs;
+
+
+
+contact.tsx
+
+import Navigation from "./Navigation";
+
+const Contact = () => {
+    return (
+        <>
+            <h3>React Us Out!!!</h3>
+
+            <br />
+
+            <Navigation isContact={true} />
+        </>
+    );
+};
+
+export default Contact;
+
+
+
+index.tsx
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import App from './App';
+
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
+
+root.render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>
+);
+
+
+FEATURE TO BE IMPLEMENTED ...
+
+Add 3 different child routing under contact component for India, US and Australia contact specific information to be shown.
+
+Implement this functionality in the Contact Component, Not at the global route definitions.
+
+
+
+RTK Application
+
+yarn create react-app rtk --template typescript
+
+yarn add @reduxjs/toolkit react-redux redux @types/react-redux @types/redux
+
+App.tsx
+
+
+import { Provider } from "react-redux";
+import store from "./Store";
+import CounterComponent from "./CounterComponent";
+import CounterView from "./CounterViewComponent";
+
+const App = () => {
+    return (
+        <>
+            <Provider store={store}>
+                <CounterComponent />
+
+                <br/>
+                <br/>
+
+                <CounterView />
+            </Provider>
+        </>
+    );
+};
+
+export default App;
+
+
+
+CounterComponent.tsx
+
+
+import { useSelector } from "react-redux";
+import { AppDispatch, RootState } from "./Store";
+import { useDispatch } from "react-redux";
+import { CounterActions } from "./CounterSlice";
+
+const CounterComponent = () => {
+    const counterState = useSelector((state: RootState) => state.counterState);
+    const dispatcher: AppDispatch = useDispatch();
+
+    return (
+        <>
+            <h1>Counter Component</h1>
+            <div>
+                CURRENT COUNTER: {counterState.counter}
+            </div>
+
+            <br />
+
+            <button onClick={() => dispatcher(CounterActions.increment(10))}>
+                Increment
+            </button>
+            &nbsp; | &nbsp;
+            <button onClick={() => dispatcher(CounterActions.decrement(10))}>
+                Decrement
+            </button>
+            &nbsp; | &nbsp;
+            <button onClick={() => dispatcher(CounterActions.reset(10))}>
+                Reset
+            </button>
+        </>
+    )
+};
+
+export default CounterComponent;
+
+
+CounterSlice.tsx
+
+
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+
+const initialState = {
+    counter: 0
+};
+
+const CounterSlice = createSlice({
+    name: "Counter",
+    reducers: {
+        increment: (state: any, action: PayloadAction<number>) => {
+            state.counter = state.counter + action.payload;
+        },
+        decrement: (state: any, action: PayloadAction<number>) => {
+            state.counter = parseInt(state.counter) - action.payload;
+        },
+        reset: (state: any, action: PayloadAction<number>) => {
+            state.counter = action.payload;
+        }
+    },
+    initialState: initialState
+});
+
+const CounterActions = CounterSlice.actions;
+
+export {
+    CounterActions
+};
+
+export default CounterSlice;
+
+
+
+CounterViewComponent.tsx
+
+
+import { useSelector } from "react-redux";
+import { RootState } from "./Store";
+
+const CounterView = () => {
+    const counterState = useSelector((state: RootState) => state.counterState);
+
+    return (
+        <>
+            <b>
+                COUNTER VIEW :
+                {counterState.counter}
+            </b>
+        </>
+    );
+};
+
+export default CounterView;
+
+
+
+Store.tsx
+
+
+import { configureStore } from "@reduxjs/toolkit";
+import CounterSlice from "./CounterSlice";
+
+const store = configureStore({
+    reducer: {
+        counterState: CounterSlice.reducer
+    }
+});
+
+// To enable typescript to understand Root State Structure and Dispatcher Structure
+
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch
+
+export default store;
+
+
+index.tsx
+
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
+
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+FEATURE TO BE IMPLEMENTED
+
+create a component that allows user to accept a number which would be used to reset the counter value in the counter state, upon the button click.
+
+and use that component in the app
+
+
+
+CASE STUDY FEATURES TO BE IMPLEMENTED:
+
+-> When the user clicks details, a model dialog displays complete information including photo in the left and details in the right side
+
+-> When the user clicks orders, view navigation takes place to Orders component that displays customers specific orders
+
+-> When the user clicks customer photo, customer specific order details are shown in the modal dialog.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
