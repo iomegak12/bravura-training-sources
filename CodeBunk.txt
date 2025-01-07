@@ -3207,6 +3207,369 @@ CASE STUDY FEATURES TO BE IMPLEMENTED:
 
 
 
+Angular JS Snippets
+
+index.html contents
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Learning Angular JS</title>
+
+    <script src="./lib/angular.js"></script>
+    <script src="./lib/angular-animate.js"></script>
+    <script src="./lib/angular-route.js"></script>
+</head>
+
+<body>
+    <div></div>
+
+    <script src="./js/app.js"></script>
+</body>
+
+</html>
+
+in the terminal,
+
+npm init -y
+
+npm install --save-dev 
+
+npx http-server public --port 8888
+
+browser -> http://localhost:8888
+
+
+updated index.html
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Learning Angular JS</title>
+
+    <script src="./lib/angular.js"></script>
+    <script src="./lib/angular-animate.js"></script>
+    <script src="./lib/angular-route.js"></script>
+</head>
+
+<body>
+    <div ng-app="">
+        <h1>Learning Angular JS</h1>
+        
+        <p>Enter your name: <input type="text" ng-model="name"></p>
+        <p>Repeat your name: <input type="text" ng-model="name"></p>
+        
+        <h2>Hello {{name}}</h2>
+    </div>
+
+    <script src="./js/app.js"></script>
+</body>
+
+</html>
+
+updated index.html
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Learning Angular JS</title>
+
+    <script src="./lib/angular.js"></script>
+    <script src="./lib/angular-animate.js"></script>
+    <script src="./lib/angular-route.js"></script>
+</head>
+
+<body>
+    <div ng-app="firstModule" ng-controller="firstController">
+        <h1>Learning Angular JS</h1>
+
+        <p>Enter your First Name: <input type="text" ng-model="firstName"></p>
+        <p>Enter your Last Name: <input type="text" ng-model="lastName"></p>
+
+        <h2>Hello {{fullName()}}</h2>
+    </div>
+
+    <script src="./js/app.js"></script>
+</body>
+
+</html>
+
+
+updated app.js
+
+
+angular.module("firstModule", [])
+    .controller("firstController", function ($scope) {
+        $scope.firstName = "Rohit";
+        $scope.lastName = "Aggarwal";
+
+        $scope.fullName = function () {
+            return $scope.firstName + " " + $scope.lastName;
+        };
+    });
+    
+    
+ updated app.js
+ 
+angular.module("professionalApp", [])
+    .constant("viewUrls", {
+        "header": "./partials/header.html",
+        "footer": "./partials/footer.html"
+    })
+    .directive("globalHeader", ['viewUrls', function (viewUrls) {
+        return {
+            restrict: "EA",
+            templateUrl: viewUrls.header,
+            controller: 'HeaderController'
+        };
+    }])
+    .directive("globalFooter", ['viewUrls', function (viewUrls) {
+        return {
+            restrict: "EA",
+            templateUrl: viewUrls.footer
+        };
+    }])
+    .controller('HeaderController', function ($scope) {
+        $scope.companyName = "Bravura Solutions";
+    });
+
+
+index.html
+
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Learning Angular JS</title>
+
+    <script src="./lib/angular.js"></script>
+    <script src="./lib/angular-animate.js"></script>
+    <script src="./lib/angular-route.js"></script>
+</head>
+
+<body>
+    <div ng-app="professionalApp">
+        <h1>Learning Angular JS</h1>
+
+        <global-header></global-header>
+
+        BODY LIVES HERE
+
+        <global-footer></global-footer>
+    </div>
+
+    <script src="./js/app.js"></script>
+</body>
+
+</html>
+
+
+header.html
+
+
+<div>
+    Welcome to {{ companyName }}
+</div>
+
+
+footer.html
+
+
+<div>
+    <footer class="footer">
+        <div class="container">
+            <span class="text-muted">
+                (c) All Rights Reserved. 2021
+            </span>
+        </div>
+    </footer>
+</div>
+
+
+updated index.html
+
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Learning Angular JS</title>
+
+    <script src="./lib/angular.js"></script>
+    <script src="./lib/angular-animate.js"></script>
+    <script src="./lib/angular-route.js"></script>
+</head>
+
+<body>
+    <div ng-app="professionalApp">
+        <h1>Learning Angular JS</h1>
+
+        <global-header></global-header>
+
+        <br />
+
+        <global-navigation></global-navigation>
+
+        <br />
+
+        <ng-view></ng-view>
+
+        <global-footer></global-footer>
+    </div>
+
+    <script src="./js/app.js"></script>
+</body>
+
+</html>
+
+
+
+updated app.js
+
+angular.module("professionalApp", ['ngRoute'])
+    .constant("viewUrls", {
+        "header": "./partials/header.html",
+        "footer": "./partials/footer.html"
+    })
+    .directive("globalHeader", ['viewUrls', function (viewUrls) {
+        return {
+            restrict: "EA",
+            templateUrl: viewUrls.header,
+            controller: 'HeaderController'
+        };
+    }])
+    .directive("globalFooter", ['viewUrls', function (viewUrls) {
+        return {
+            restrict: "EA",
+            templateUrl: viewUrls.footer
+        };
+    }])
+    .directive("globalNavigation", ['viewUrls', function (viewUrls) {
+        return {
+            restrict: "EA",
+            templateUrl: "./partials/navigation.html"
+        };
+    }])
+    .controller('HeaderController', function ($scope) {
+        $scope.companyName = "Bravura Solutions";
+    })
+    .config(function ($routeProvider) {
+        $routeProvider
+            .when('/', {
+                templateUrl: 'partials/home.html'
+            })
+            .when('/about', {
+                templateUrl: 'partials/about.html'
+            })
+            .when('/contact', {
+                templateUrl: 'partials/contact.html'
+            })
+            .otherwise({
+                redirectTo: '/'
+            });
+    });
+    
+    
+navigation.html
+
+
+<div>
+    <p>
+        <a href="#/!">Home</a>
+        <a href="#!about">About Us</a>
+        <a href="#!contact">Contact</a>
+    </p>
+</div>
+
+
+
+contact.html
+
+<div>
+
+
+    To contact Bravura Solutions India via email, you can reach out to their designated contact person, Sandeep Sareen,
+    at [ssareen@bravurasolutions.com](mailto:ssareen@bravurasolutions.com).
+
+    Alternatively, you can use the contact form on their official website to send a message directly.
+
+    For phone inquiries, you can call their Gurgaon office at +91 124 4907000.
+
+    Their office is located at:
+
+    Candor TechSpace
+    Tower 7, 7th, 8th & 9th Floor
+    8, IT/ITES SEZ, Tikri, Sector 48
+    Gurugram, Haryana 122018
+    India
+
+    Feel free to reach out to them through any of these channels for further assistance.
+</div>
+
+
+
+about.html
+
+<div>
+    Bravura Solutions is a global financial software company that provides comprehensive technology solutions for the
+    wealth management, life insurance, and pension industries. Founded in 2004 and headquartered in Sydney, Australia,
+    Bravura has established itself as a leading provider of enterprise software applications and services, helping
+    financial institutions streamline their operations and deliver superior customer experiences.
+
+    ### Key Offerings
+    1. **Wealth Management Solutions**:
+    - **Sonata**: A flagship platform that supports wealth management, superannuation, pensions, and life insurance.
+    Sonata offers end-to-end functionality for managing complex investment products, client accounts, and transactions.
+    - **WealthConnect**: A cloud-based platform leveraging Salesforce to provide a CRM and digital client management
+    solution tailored for wealth managers.
+
+    2. **Pensions and Retirement**:
+    - Solutions for pension and retirement plan providers that help manage contributions, benefits, and member
+    communications efficiently.
+
+    3. **Life Insurance**:
+    - Tools for life insurance providers to manage policies, claims, and customer interactions.
+
+    4. **Digital Enablement**:
+    - Bravura offers digital platforms to enhance client engagement, including self-service portals, mobile
+    applications, and personalized customer experiences.
+
+    ### Benefits of Bravura's Solutions
+    - **Scalability**: Designed to support large-scale operations and high transaction volumes.
+    - **Flexibility**: Configurable systems that cater to diverse financial products and regulatory requirements.
+    - **Integration**: Seamless integration with existing systems and data sources.
+    - **Automation**: Streamlines processes to reduce manual intervention, improve efficiency, and minimize errors.
+    - **Compliance**: Helps organizations adhere to complex financial regulations across multiple jurisdictions.
+
+    ### Global Presence
+    Bravura Solutions operates in several regions, including:
+    - Australia and New Zealand
+    - United Kingdom and Europe
+    - Asia
+    - South Africa
+
+    The company serves a wide range of clients, including banks, asset managers, insurers, and pension providers.
+
+    ### Recent Developments
+    Bravura has been focusing on enhancing its cloud-based offerings, adopting advanced technologies like artificial
+    intelligence (AI) and machine learning (ML), and expanding its digital solutions portfolio to meet the evolving
+    needs of the financial services industry.
+
+    If you'd like more specific details about their products, services, or recent news, let me know!
+</div>
+
+
+
+home.html
+
+
+Welcome to Delhi ...
+
+Delhi is the capital of India ...
 
 
 
@@ -3214,5 +3577,1279 @@ CASE STUDY FEATURES TO BE IMPLEMENTED:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Angular JS Case Study v1
+
+https://github.com/iomegak12/bravura-training-sources/blob/main/public.zip
+
+
+header.html
+
+<div class="well well-small">
+    <h4>Bravura</h4>
+</div>
+
+
+footer.html
+
+<div class="well well-small">
+    <h4>&copy; All Rights Reserved Bravura 1999-2021</h4>
+</div>
+
+
+config.js (under common)
+
+var commonModule = angular.module("com.bravura.modules.common", []);
+
+commonModule.constant("viewPaths", {
+    "header": "js/common/partials/header.html",
+    "footer": "js/common/partials/footer.html"
+});
+
+
+index.js (under common)
+
+
+var commonModule = angular.module("com.bravura.modules.common", []);
+
+commonModule.run(() => {
+    console.log("Common Module Initialized Successfully!");
+});
+
+
+directives.js
+
+var commonModule = angular.module("com.bravura.modules.common", []);
+
+commonModule
+    .directive("globalHeader", ["viewPaths", function (viewPaths) {
+        return {
+            restrict: "E",
+            templateUrl: viewPaths.header
+        };
+    }]);
+
+commonModule
+    .directive("globalFooter", ["viewPaths", function (viewPaths) {
+        return {
+            restrict: "E",
+            templateUrl: viewPaths.footer
+        };
+    }]);
+
+
+updated config.js
+
+var commonConfigModule = angular.module("com.bravura.modules.common.config", []);
+
+commonConfigModule.constant("viewPaths", {
+    "header": "js/common/partials/header.html",
+    "footer": "js/common/partials/footer.html"
+});
+
+
+updated directives.js
+
+
+var commonDirectivesModule = 
+    angular.module("com.bravura.modules.common.directives", 
+        [
+            'com.bravura.modules.common.config'
+        ]);
+
+commonDirectivesModule
+    .directive("globalHeader", ["viewPaths", function (viewPaths) {
+        return {
+            restrict: "E",
+            templateUrl: viewPaths.header
+        };
+    }]);
+
+    commonDirectivesModule
+    .directive("globalFooter", ["viewPaths", function (viewPaths) {
+        return {
+            restrict: "E",
+            templateUrl: viewPaths.footer
+        };
+    }]);
+    
+    
+updated index.js
+
+var commonModule = angular.module("com.bravura.modules.common", 
+    [
+        'com.bravura.modules.common.config',
+        'com.bravura.modules.common.directives'
+    ]);
+
+commonModule.run(() => {
+    console.log("Common Module Initialized Successfully!");
+});
+
+
+updated index.html
+
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>AngularJS Case Study v1.0</title>
+
+    <link rel="stylesheet" href="./css/bootstrap.css">
+    <link rel="stylesheet" href="./css/app.css">
+
+    <script src="./libs/angular.js"></script>
+    <script src="./libs/angular-route.js"></script>
+    <script src="./libs/angular-animate.js"></script>
+</head>
+
+<body>
+    <div ng-app="com.bravura.modules.common">
+        <div class="container">
+            <global-header></global-header>
+
+            <ng-view></ng-view>
+
+            <global-footer></global-footer>
+        </div>
+    </div>
+
+    <script src="./js/common/config.js"></script>
+    <script src="./js/common/directives.js"></script>
+    <script src="./js/common/index.js"></script>
+
+</body>
+
+</html>
+
+
+
+in the terminal,
+
+npx http-server --port 8888 public
+
+
+https://getbootstrap.com/docs/4.1/examples/navbar-static/
+
+<a href="#" class="navbar-left"><img src="/path/to/image.png"></a>
+
+
+updated app.css
+
+
+body {
+    padding-top: 60px;
+    padding-bottom: 40px;
+}
+
+
+.phone-images {
+    width: 450px;
+    height: 450px;
+    overflow: hidden;
+    position: relative;
+    float: left;
+}
+
+.phones {
+    list-style: none;
+}
+
+.thumb {
+    float: left;
+    margin: -1em 1em 1.5em 0em;
+    padding-bottom: 1em;
+    height: 100px;
+    width: 100px;
+}
+
+.phones li {
+    clear: both;
+    height: 100px;
+    padding-top: 15px;
+}
+
+/** Detail View **/
+img.phone {
+    float: left;
+    margin-right: 3em;
+    margin-bottom: 2em;
+    background-color: white;
+    padding: 2em;
+    height: 400px;
+    width: 400px;
+}
+
+ul.phone-thumbs {
+    margin: 0;
+    list-style: none;
+}
+
+ul.phone-thumbs li {
+    border: 1px solid black;
+    display: inline-block;
+    margin: 1em;
+    background-color: white;
+}
+
+ul.phone-thumbs img {
+    height: 100px;
+    width: 100px;
+    padding: 1em;
+}
+
+ul.phone-thumbs img:hover {
+    cursor: pointer;
+}
+
+
+ul.specs {
+    clear: both;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+ul.specs>li {
+    display: inline-block;
+    width: 200px;
+    vertical-align: top;
+}
+
+ul.specs>li>span {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+ul.specs dt {
+    font-weight: bold;
+}
+
+h1 {
+    border-bottom: 1px solid gray;
+}
+
+
+
+updated header.html
+
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="brand" href="#">
+                <img src="img/company-logo.png" height="25" width="25" alt="Logo" />
+            </a>
+            <div class="nav-collapse collapse">
+                <p class="navbar-text pull-right">
+                    Logged in as <a href="#" class="navbar-link">Username</a>
+                </p>
+                <ul class="nav">
+                    <li class="active"><a href="#">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+
+updated footer.html
+
+<footer>
+    <p>&copy; Company 2013</p>
+</footer>
+
+
+
+updated index.html
+
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>AngularJS Case Study v1.0</title>
+
+    <link rel="stylesheet" href="./css/bootstrap.css">
+    <link rel="stylesheet" href="./css/app.css">
+
+    <script src="./libs/angular.js"></script>
+    <script src="./libs/angular-route.js"></script>
+    <script src="./libs/angular-animate.js"></script>
+</head>
+
+<body>
+    <div ng-app="com.bravura.modules.common">
+        <global-header></global-header>
+
+        <div class="container">
+
+            <!-- Main hero unit for a primary marketing message or call to action -->
+            <div class="hero-unit">
+                <h1>Hello, world!</h1>
+                <p>This is a template for a simple marketing or informational website. It includes a large callout
+                    called the hero unit and three supporting pieces of content. Use it as a starting point to create
+                    something more unique.</p>
+                <p><a href="#" class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+            </div>
+
+            <!-- Example row of columns -->
+            <div class="row">
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
+                        mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada
+                        magna mollis euismod. Donec sed odio dui. </p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+                </div>
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
+                        mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada
+                        magna mollis euismod. Donec sed odio dui. </p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+                </div>
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id
+                        ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris
+                        condimentum nibh, ut fermentum massa justo sit amet risus.</p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+                </div>
+            </div>
+
+            <hr>
+
+            <global-footer></global-footer>
+
+        </div> <!-- /container -->
+    </div>
+
+    <script src="./js/common/config.js"></script>
+    <script src="./js/common/directives.js"></script>
+    <script src="./js/common/index.js"></script>
+
+</body>
+
+</html>
+
+
+updated index.html after routes introduced
+
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>AngularJS Case Study v1.0</title>
+
+    <link rel="stylesheet" href="./css/bootstrap.css">
+    <link rel="stylesheet" href="./css/app.css">
+
+    <script src="./libs/angular.js"></script>
+    <script src="./libs/angular-route.js"></script>
+    <script src="./libs/angular-animate.js"></script>
+</head>
+
+<body>
+    <div ng-app="com.bravura.modules.common">
+        <global-header></global-header>
+
+        <div class="container">
+
+            <ng-view></ng-view>
+            
+            <hr>
+
+            <global-footer></global-footer>
+
+        </div> <!-- /container -->
+    </div>
+
+    <script src="./js/common/config.js"></script>
+    <script src="./js/common/directives.js"></script>
+    <script src="./js/common/routes.js"></script>
+    <script src="./js/common/index.js"></script>
+
+</body>
+
+</html>
+
+
+
+routes.js
+
+
+var routerModule = angular.module("com.bravura.modules.common.routes", ["ngRoute"]);
+
+routerModule.config(["$routeProvider", function ($routeProvider) {
+    $routeProvider
+        .when("/home", {
+            templateUrl: "js/common/partials/home.html"
+        })
+        .when("/about", {
+            templateUrl: "views/about.html",
+            controller: "AboutController"
+        })
+        .otherwise({
+            redirectTo: "/home"
+        });
+}]);
+
+
+
+
+updated index.js
+
+var commonModule = angular.module("com.bravura.modules.common", 
+    [
+        'com.bravura.modules.common.config',
+        'com.bravura.modules.common.directives',
+        'com.bravura.modules.common.routes'
+    ]);
+
+commonModule.run(() => {
+    console.log("Common Module Initialized Successfully!");
+});
+
+
+common\partials\home.html
+
+<!-- Main hero unit for a primary marketing message or call to action -->
+<div class="hero-unit">
+    <h1>CaseStudy v1</h1>
+    <p>This is a template for a simple marketing or informational website. It includes a large callout
+        called the hero unit and three supporting pieces of content. Use it as a starting point to create
+        something more unique.</p>
+    <p><a href="#" class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+</div>
+
+<!-- Example row of columns -->
+<div class="row">
+    <div class="span4">
+        <h2>Heading</h2>
+        <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
+            mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada
+            magna mollis euismod. Donec sed odio dui. </p>
+        <p><a class="btn" href="#">View details &raquo;</a></p>
+    </div>
+    <div class="span4">
+        <h2>Heading</h2>
+        <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
+            mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada
+            magna mollis euismod. Donec sed odio dui. </p>
+        <p><a class="btn" href="#">View details &raquo;</a></p>
+    </div>
+    <div class="span4">
+        <h2>Heading</h2>
+        <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id
+            ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris
+            condimentum nibh, ut fermentum massa justo sit amet risus.</p>
+        <p><a class="btn" href="#">View details &raquo;</a></p>
+    </div>
+</div>
+
+
+updated routes.js
+
+
+var routerModule = angular.module("com.bravura.modules.common.routes", ["ngRoute"]);
+
+routerModule.config(["$routeProvider", function ($routeProvider) {
+    $routeProvider
+        .when("/home", {
+            templateUrl: "js/common/partials/home.html"
+        })
+        .when("/about", {
+            templateUrl: "js/common/partials/about.html"
+        })
+        .otherwise({
+            redirectTo: "/home"
+        });
+}]);
+
+
+updated header.html
+
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="brand" href="#">
+                <img src="img/company-logo.png" height="25" width="25" alt="Logo" />
+            </a>
+            <div class="nav-collapse collapse">
+                <p class="navbar-text pull-right">
+                    Welcome <a href="#" class="navbar-link">Guest</a>
+                </p>
+                <ul class="nav">
+                    <li class="active"><a href="#/!">Home</a></li>
+                    <li><a href="#!about">About</a></li>
+                    <li><a href="#!contact">Contact</a></li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+
+
+about.html
+
+<!-- Main hero unit for a primary marketing message or call to action -->
+<div class="hero-unit">
+    <h1>About Us</h1>
+
+    <p>Bravura is a forward-thinking company dedicated to delivering innovative solutions that empower businesses and
+        individuals to excel in a rapidly changing world. With a strong foundation built on expertise and creativity, we
+        specialize in providing tailored services across
+        diverse industries.
+
+        Our mission is to drive excellence and create value for our clients by combining cutting-edge technologies with
+        unparalleled customer service.
+
+        At Bravura, we foster a culture of collaboration, integrity, and continuous improvement to meet the evolving
+        needs of the modern marketplace.
+
+        With a team of experienced professionals passionate about innovation, we have earned a reputation for
+        reliability and exceptional results.
+
+        We are committed to building lasting partnerships and contributing to the success of our clients, employees, and
+        communities.
+
+        Our solutions are designed to inspire growth, efficiency, and sustainability in every project we undertake.</p>
+    Bravura is your trusted partner in shaping the future and redefining excellence.</p>
+
+    <p><a href="#" class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+</div>
+
+<!-- Example row of columns -->
+<div class="row">
+    <div class="span4">
+        <h2>Achievements</h2>
+        <p>Bravura has achieved excellence through innovative solutions, earning industry recognition for delivering
+            transformative results across diverse sectors. Our commitment to quality and customer success has
+            established us as a trusted leader in the marketplace.
+        </p>
+        <p><a class="btn" href="#">View details &raquo;</a></p>
+    </div>
+    <div class="span4">
+        <h2>History</h2>
+        <p>Founded on the principles of innovation and excellence, Bravura has a rich history of delivering
+            groundbreaking solutions since its inception. Over the years, we have evolved into a trusted industry
+            leader, consistently exceeding expectations and driving progress. </p>
+        <p><a class="btn" href="#">View details &raquo;</a></p>
+    </div>
+    <div class="span4">
+        <h2>Portfolio</h2>
+        <p>Bravura's portfolio showcases a diverse range of successful projects, reflecting our expertise in delivering
+            tailored solutions across industries. Each accomplishment highlights our commitment to innovation, quality,
+            and measurable impact for our clients.
+        </p>
+        <p><a class="btn" href="#">View details &raquo;</a></p>
+    </div>
+</div>
+
+
+for complete solution refer the github source code ...
+
+
+
+Day 6
+
+
+Understanding $stateProvider
+
+
+index.html
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <base href="/">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/1.0.22/angular-ui-router.min.js"></script>
+    <script src="./app.js"></script>
+
+    <base path="/" />
+</head>
+
+<body ng-app="stateProviderModule">
+    <header style="background-color: #ffffff;
+                   text-align: center; 
+                   padding: 20px 0;">
+        <h1 style="color: green;
+                   font-size: 40px; 
+                   margin: 0;">
+            Welcome to $stateProvider
+        </h1>
+        <h3 style="color: rgb(0, 0, 0); 
+                   font-size: 34px;">
+            Understanding how $stateProvider really works.
+        </h3>
+    </header>
+    <nav style="text-align: center;">
+        <div class="image-link" ui-sref="dsa" style="display: inline-block; 
+                   margin: 20px; 
+                   cursor: pointer; 
+                   background-color: #fff;
+                   border-radius: 10px; 
+                   transition: transform 0.2s;">
+            <img src="./img/dsa.png" alt="DSA" style="width: 300px; 
+                        height: 200px; 
+                        border: 3px solid #4CAF50;
+                        border-radius: 10px;">
+            <p style="color: rgb(0, 0, 0); 
+                      font-size: 20px; 
+                      padding: 10px;">
+                Data Structures and Algorithms
+            </p>
+        </div>
+        <div class="image-link" ui-sref="fullstack" style="display: inline-block;
+                    margin: 20px; 
+                    cursor: pointer; 
+                    background-color: #fff;  
+                    border-radius: 10px; 
+                    transition: transform 0.2s;">
+            <img src="./img/fullstack.png" alt="Full Stack" style="width: 300px; height: 
+                        200px; border: 3px solid #4CAF50;
+                        border-radius: 10px;">
+            <p style="color: rgb(0, 0, 0);
+                      font-size: 20px; 
+                      padding: 10px;">
+                Full Stack Development
+            </p>
+        </div>
+        <div class="image-link" ui-sref="ai" style="display: inline-block;
+                    margin: 20px;
+                    cursor: pointer; 
+                    background-color: #fff;
+                    border-radius: 10px; 
+                    transition: transform 0.2s;">
+            <img src="./img/ai.png" alt="AI" style="width: 300px; 
+                        height: 200px;
+                        border: 3px solid #4CAF50;
+                        border-radius: 10px;">
+            <p style="color: rgb(0, 0, 0); 
+                      font-size: 20px; 
+                      padding: 10px;">
+                Artificial Intelligence
+            </p>
+        </div>
+    </nav>
+
+    <div ui-view class="content" style="background-color: rgb(147, 251, 152); 
+               padding: 20px; 
+               border-radius: 10px; 
+               box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);">
+    </div>
+</body>
+
+</html>
+
+
+
+app.js
+
+
+angular
+    .module("stateProviderModule", ["ui.router"])
+    .constant("viewTemplateUrls", {
+        "ai": "./partials/ai.html",
+        "dsa": "./partials/dsa.html",
+        "fullstack": "./partials/fullstack.html"
+    })
+    .config(function ($stateProvider, $locationProvider, $urlRouterProvider, viewTemplateUrls) {
+        $urlRouterProvider.otherwise("/");
+        $locationProvider.html5Mode(true);
+
+        $stateProvider.state("ai", {
+            url: "/ai",
+            templateUrl: viewTemplateUrls.ai,
+            controller: function ($scope) {
+                $scope.message = "Welcome to AI World!";
+            }
+        });
+
+        $stateProvider.state("dsa", {
+            url: "/dsa",
+            templateUrl: viewTemplateUrls.dsa,
+            controller: function ($scope) {
+                $scope.message = "Welcome to Data Structures and Algorithms World!";
+            }
+        });
+
+        $stateProvider.state("fullstack", {
+            url: "/fullstack",
+            templateUrl: viewTemplateUrls.fullstack,
+            controller: function ($scope) {
+                $scope.message = "Welcome to Fullstack (MEAN/MERN/MEVN) World!";
+            }
+        });
+    }).run(() => {
+        console.log("State Provider Module Initialized Successfully!");
+    });
+    
+partials\ai.html
+
+<h2>{{ message | uppercase }}</h2>
+
+<div>
+    Artificial Intelligence (AI) refers to the simulation of human intelligence processes by machines, particularly
+    computer systems. It involves tasks such as learning, reasoning, problem-solving, and decision-making. AI can be
+    classified into narrow AI, designed for specific tasks, and general AI, which aims to perform any cognitive function
+    like a human. It leverages machine learning algorithms, neural networks, and large data sets to improve over time.
+    AI has applications across various fields, including healthcare, finance, robotics, and entertainment.
+</div>
+
+
+
+partials\dsa.html
+
+<h2>{{ message | uppercase }} </h2>
+
+<div>
+    Data structures are like containers that store and organize data efficiently, such as lists, trees, or graphs.
+    Algorithms are step-by-step instructions for solving problems or performing tasks using that data. Think of data
+    structures as different types of shelves, and algorithms as the methods used to find, add, or remove items from
+    those shelves. Together, they help computers process and solve problems quickly and effectively. Understanding them
+    is key to building software that works efficiently and scales well.
+</div>
+
+
+partials\fullstack.html
+
+<h2> {{ message | uppercase }} </h2>
+
+<div>
+    Full-stack application development involves building both the front-end (user interface) and back-end (server-side
+    logic, databases) of an application. Developers work with multiple technologies to create a seamless experience from
+    the user's interaction to the data processing behind the scenes. It ensures end-to-end functionality and integration
+    across platforms. This approach reduces complexity and allows for faster development cycles. Full-stack development
+    is crucial for building scalable, efficient, and user-friendly applications.
+</div>
+
+
+images are available at the following URL
+
+https://github.com/iomegak12/bravura-training-sources
+
+
+Feature to be implemented:
+
+    Add 3 child views to fullstack state, that shows MEAN, MERN and MEVN specific details.
+    
+
+
+updated app.js
+
+angular
+    .module("stateProviderModule", ["ui.router"])
+    .constant("viewTemplateUrls", {
+        "ai": "./partials/ai.html",
+        "dsa": "./partials/dsa.html",
+        "fullstack": "./partials/fullstack.html",
+        "mern": "./partials/mern.html",
+        "mean": "./partials/mean.html",
+        "mevn": "./partials/mevn.html"
+    })
+    .config(function ($stateProvider, $locationProvider, $urlRouterProvider, viewTemplateUrls) {
+        $urlRouterProvider.otherwise("/");
+        $locationProvider.html5Mode(true);
+
+        $stateProvider.state("ai", {
+            url: "/ai",
+            templateUrl: viewTemplateUrls.ai,
+            controller: function ($scope) {
+                $scope.message = "Welcome to AI World!";
+            }
+        });
+
+        $stateProvider.state("dsa", {
+            url: "/dsa",
+            templateUrl: viewTemplateUrls.dsa,
+            controller: function () {
+                this.message = "Welcome to Data Structures and Algorithms World!";
+            }
+        });
+
+        $stateProvider.state("fullstack", {
+            url: "/fullstack",
+            templateUrl: viewTemplateUrls.fullstack,
+            controller: function () {
+                this.message = "Welcome to Fullstack (MEAN/MERN/MEVN) World!";
+            }
+        });
+
+        $stateProvider.state("fullstack.mean", {
+            url: "/mean",
+            templateUrl: viewTemplateUrls.mean
+        });
+
+        $stateProvider.state("fullstack.mern", {
+            url: "/mern",
+            templateUrl: viewTemplateUrls.mern
+        });
+
+        $stateProvider.state("fullstack.mevn", {
+            url: "/fullstack-mevn",
+            templateUrl: viewTemplateUrls.mevn
+        });
+    }).run(() => {
+        console.log("State Provider Module Initialized Successfully!");
+    });
+    
+    
+    
+updated fullstack.html
+
+
+<h2> {{ message }} </h2>
+
+<div>
+    Full-stack application development involves building both the front-end (user interface) and back-end (server-side
+    logic, databases) of an application. Developers work with multiple technologies to create a seamless experience from
+    the user's interaction to the data processing behind the scenes. It ensures end-to-end functionality and integration
+    across platforms. This approach reduces complexity and allows for faster development cycles. Full-stack development
+    is crucial for building scalable, efficient, and user-friendly applications.
+</div>
+<nav style="text-align: center;">
+    <div class="image-link" ui-sref="fullstack.mean" style="display: inline-block; 
+            margin: 20px; 
+            cursor: pointer; 
+            background-color: #fff;
+            border-radius: 10px; 
+            transition: transform 0.2s;">
+        <p style="color: rgb(0, 0, 0); 
+            font-size: 20px; 
+            padding: 10px;">
+            MEAN
+        </p>
+    </div>
+
+    <div class="image-link" ui-sref="fullstack.mern" style="display: inline-block; 
+        margin: 20px; 
+        cursor: pointer; 
+        background-color: #fff;
+        border-radius: 10px; 
+        transition: transform 0.2s;">
+        <p style="color: rgb(0, 0, 0); 
+            font-size: 20px; 
+            padding: 10px;">
+            MERN</p>
+    </div>
+
+    <div class="image-link" ui-sref="fullstack.mevn" style="display: inline-block; 
+        margin: 20px; 
+        cursor: pointer; 
+        background-color: #fff;
+        border-radius: 10px; 
+        transition: transform 0.2s;">
+        <p style="color: rgb(0, 0, 0); 
+            font-size: 20px; 
+            padding: 10px;">
+            MEVN
+        </p>
+    </div>
+</nav>
+<div ui-view>
+
+</div>
+
+
+mean.html
+
+<h1>MEAN Stack Overview</h1>
+<p>MEAN is a full-stack framework consisting of MongoDB, Express.js, Angular, and Node.js.</p>
+<ul>
+    <li><strong>MongoDB:</strong> A NoSQL database that stores data in a flexible, JSON-like format.</li>
+    <li><strong>Express.js:</strong> A Node.js web framework used for handling server-side routes and requests.</li>
+    <li><strong>Angular:</strong> A front-end framework for building dynamic single-page applications (SPAs).</li>
+    <li><strong>Node.js:</strong> A JavaScript runtime for building server-side applications.</li>
+</ul>
+<p>Together, these technologies enable the development of scalable web applications using JavaScript across the stack.
+</p>
+
+
+mern.html
+
+<h1>MERN Architecture Overview</h1>
+<p>MERN is a full-stack JavaScript framework consisting of MongoDB, Express.js, React, and Node.js.</p>
+<ul>
+    <li><strong>MongoDB:</strong> A NoSQL database that stores data in a flexible, JSON-like format.</li>
+    <li><strong>Express.js:</strong> A Node.js web framework for building server-side applications and handling routes.
+    </li>
+    <li><strong>React:</strong> A JavaScript library for building interactive user interfaces, especially SPAs.</li>
+    <li><strong>Node.js:</strong> A runtime environment for executing JavaScript on the server-side.</li>
+</ul>
+<p>Together, these technologies allow developers to build modern web applications using JavaScript across both the
+    client and server sides.</p>
+    
+    
+mevn.html
+
+<h1>MEVN Architecture Overview</h1>
+<p>MEVN is a full-stack JavaScript framework consisting of MongoDB, Express.js, Vue.js, and Node.js.</p>
+<ul>
+    <li><strong>MongoDB:</strong> A NoSQL database that stores data in a flexible, JSON-like format.</li>
+    <li><strong>Express.js:</strong> A Node.js web framework for handling server-side routing and requests.</li>
+    <li><strong>Vue.js:</strong> A progressive JavaScript framework for building user interfaces and single-page
+        applications (SPAs).</li>
+    <li><strong>Node.js:</strong> A JavaScript runtime that allows server-side development with JavaScript.</li>
+</ul>
+<p>These technologies combined enable the development of dynamic, scalable web applications using JavaScript across both
+    the front-end and back-end.</p>
+    
+    
+Webpack Exercise
+
+
+git clone https://github.com/preboot/angularjs-webpack angularjswebpack1
+
+cd angularjswebpack1                                                    
+
+code .
+
+in the terminal,
+
+    npm install
+    
+    npm run build
+    
+    npm start
+
+
+Webpack - ES6 and AngularJS 1.x - Practice
+
+create a file named "package.json" and paste the following content
+
+
+{
+    "name": "angular-es6",
+    "version": "0.1.0",
+    "description": "",
+    "main": "src/app/app.module.js",
+    "scripts": {
+        "build": "webpack --config ./webpack.config.js",
+        "dev-start": "webpack-dev-server",
+        "start": "webpack-dev-server --content-base build/"
+    },
+    "repository": {
+        "type": "git"
+    },
+    "keywords": [],
+    "author": "Shafeeque",
+    "license": "",
+    "devDependencies": {
+        "angular": "^1.6.1",
+        "angular-sanitize": "^1.6.1",
+        "angular-ui-bootstrap": "^2.5.0",
+        "angular-ui-router": "^0.4.2",
+        "babel-core": "^6.22.1",
+        "babel-loader": "^6.2.10",
+        "babel-preset-es2015": "^6.22.0",
+        "bootstrap": "^3.3.7",
+        "copy-webpack-plugin": "^4.0.1",
+        "css-loader": "^0.26.1",
+        "extract-text-webpack-plugin": "^2.0.0-beta.5",
+        "file-loader": "^0.10.0",
+        "html-webpack-plugin": "^2.28.0",
+        "raw-loader": "^0.5.1",
+        "style-loader": "^0.13.1",
+        "webpack": "2.2.0",
+        "webpack-dev-server": "^1.16.3"
+    }
+}
+
+
+.gitignore
+
+
+.DS_Store
+node_modules
+dist
+*.log
+*.env
+.sonar
+.idea
+.vscode
+
+
+
+README.md
+
+### Professional Angular 1.x - ES2015 and Webpack
+
+
+
+
+webpack.config.js and paste the following contents
+
+
+var path = require('path');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var CopyWebpackPlugin = require('copy-webpack-plugin');
+
+module.exports = {
+  entry: path.resolve(__dirname, './app/app.module.js'),
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'bundle.js'
+  },
+  devtool: 'source-map',
+  module: {
+    loaders: [{
+      test: /\.js$/,
+      loader: 'babel-loader',
+      exclude: /node_modules/,
+      query: {
+        presets: ['es2015']
+      }
+    }, {
+      test: /\.css$/,
+      loader: ExtractTextPlugin.extract({
+        fallback: 'style-loader',
+        use: 'css-loader'
+      })
+    }, {
+      test: /\.woff($|\?)|\.woff2($|\?)|\.ttf($|\?)|\.eot($|\?)|\.svg($|\?)/,
+      loader: 'file-loader?name=[name].[ext]&publicPath=../fonts/&outputPath=/assets/fonts/'
+    },
+            { test: /\.(jpe?g|png|gif)$/i, loader: 'file-loader?name=/assets/images/[name].[ext]' },
+    {
+      test: /\.(html)$/,
+      loader: 'file-loader?name=[path][name].[ext]'
+    },
+    {
+      test: /\.(json)$/,
+      loader: 'file-loader?name=[path][name].[ext]'
+    },
+    {
+      test: /\.scss$/,
+      loader: ExtractTextPlugin.extract({
+        use: [{
+          loader: 'css-loader'
+        }, {
+          loader: 'sass-loader' // compiles Sass to CSS
+        }],
+        fallback: 'style-loader'
+      })
+    }
+    ]
+  },
+  plugins: [
+    new ExtractTextPlugin('assets/css/styles.css'),
+    new CopyWebpackPlugin([
+    ])
+  ]
+};
+
+
+create a file named "app\app.module.js"
+
+import angular from 'angular';
+import uiRouter from 'angular-ui-router';
+import ngSanitize from 'angular-sanitize';
+import uiBootstrap from 'angular-ui-bootstrap';
+
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+const MODULE_NAME = "webpackApp";
+
+angular
+    .module(MODULE_NAME,
+        [
+            uiRouter,
+            ngSanitize,
+            uiBootstrap
+        ])
+    .run(() => {
+        console.log("Application Initialized Successfully!");
+    });
+
+require('../index.html');
+
+export default MODULE_NAME;
+
+
+
+
+
+index.html
+
+
+<!doctype html>
+<html lang="en" ng-app="webpackApp">
+
+<head>
+    <base href="/">
+    <meta charset="UTF-8">
+    <title>Angular ES6 - Webpack</title>
+    <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="./assets/css/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+
+</body>
+<script src="./bundle.js"></script>
+
+</html>
+
+
+in the terminal window,
+
+    npm run build
+    
+    npm install http-server
+    
+    npx http-server dist --port 8888
+    
+    browser -> http://localhost:8888
+
+
+modify the html to add the ng-app at the body
+
+
+create a folder named "components" and "app" inside components
+
+create a file named "app.component.js"
+
+
+const appComponent = {
+    bindings: {},
+    templateUrl: require("./app.component.html"),
+    controller: function ($scope) {
+        $scope.message = "This application component is the main component of the application!";
+    }
+};
+
+export default appComponent;
+
+
+create a file named "app.component.html"
+
+
+<h1>Application Component Title</h1>
+<h3> {{ message }} </h3>
+
+
+create a file named "app.component.spec.js"
+
+describe("A suite is just a function", function () {
+    let a;
+
+    it("and so is a spec", function () {
+        a = true;
+
+        expect(a).toBe(true);
+    });
+});
+
+
+updated app.module.js
+
+
+import angular from 'angular';
+import uiRouter from 'angular-ui-router';
+import ngSanitize from 'angular-sanitize';
+import uiBootstrap from 'angular-ui-bootstrap';
+
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+import appComponent from './components/app/app.component';
+
+const MODULE_NAME = "webpackApp";
+
+angular
+    .module(MODULE_NAME,
+        [
+            uiRouter,
+            ngSanitize,
+            uiBootstrap
+        ])
+    .component("mainApp", appComponent)
+    .run(() => {
+        console.log("Application Initialized Successfully!");
+    });
+
+require('../index.html');
+
+export default MODULE_NAME;
+
+
+updated index.html
+
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <base href="/">
+    <meta charset="UTF-8">
+    <title>Angular ES6 - Webpack</title>
+    <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="./assets/css/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body ng-app="webpackApp">
+    <main-app></main-app>
+</body>
+<script src="./bundle.js"></script>
+
+</html>
+
+
+for the complete solution, refer the file 
+
+es6ng1webpack.zip
+
+under https://github.com/iomegak12/bravura-training-sources
+
+
+apply the changes ... and npm start
+
+
+For component to component communications demonstrations,
+
+please refer the source code file ng1webpackes6comm.zip in the git respository 
+    https://github.com/iomegak12/bravura-training-sources
 
 
